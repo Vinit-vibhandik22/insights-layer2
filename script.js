@@ -455,23 +455,17 @@ function initialize() {
     }
 
     // ── Events ──
-    
-loginBtn.addEventListener("click", (e) => {
+    generateBtn.addEventListener('click', () => {
+        const query = queryInput.value.trim();
+        if (query) {
+            simulateProcessing(query);
+        } else {
+            queryInput.style.animation = "shake 0.4s";
+            setTimeout(() => queryInput.style.animation = "", 400);
+        }
+    });
 
-    e.preventDefault();
 
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value.trim();
-
-    if(email === "" || password === ""){
-        alert("Please enter Email and Password");
-        return;
-    }
-
-    document.getElementById("login").style.display = "none";
-    showScreen("landing");
-});
-    
     // Refine bar: re-generate from dashboard
     refineBtn.addEventListener('click', () => {
         const query = refineInput.value.trim();
