@@ -300,3 +300,131 @@ body {
     .impact-metrics { flex-wrap:wrap; justify-content:center; }
     .nav-links { display:none; }
 }
+/* ================= LOGIN PAGE ================= */
+/* ================= LOGIN PAGE ================= */
+
+#login{
+    position:fixed;
+    inset:0;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(135deg,#ffffff,#f8fafc);
+    z-index:9999;
+}
+
+.login-container{
+    width:420px;
+    padding:40px;
+    background:rgba(255,255,255,0.75);
+    backdrop-filter:blur(20px);
+    border:1px solid rgba(255,255,255,.5);
+    border-radius:20px;
+    box-shadow:0 20px 60px rgba(0,0,0,.12);
+    animation:loginFade .6s ease;
+}
+
+@keyframes loginFade{
+    from{
+        opacity:0;
+        transform:translateY(30px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+.login-logo{
+    text-align:center;
+    margin-bottom:30px;
+}
+
+.login-logo h1{
+    font-size:2rem;
+    font-weight:700;
+    color:#111827;
+}
+
+.login-logo span{
+    color:#e11d48;
+}
+
+.login-logo p{
+    color:#6b7280;
+    margin-top:8px;
+    font-size:.9rem;
+}
+
+.login-container h2{
+    text-align:center;
+    margin-bottom:25px;
+    color:#111827;
+}
+
+.input-box{
+    margin-bottom:18px;
+}
+
+.input-box input{
+    width:100%;
+    padding:14px 16px;
+    border:1px solid #d1d5db;
+    border-radius:12px;
+    font-size:15px;
+    outline:none;
+    transition:.3s;
+}
+
+.input-box input:focus{
+    border-color:#e11d48;
+    box-shadow:0 0 0 3px rgba(225,29,72,.15);
+}
+
+.login-options{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin:15px 0 25px;
+    font-size:14px;
+}
+
+.login-options a{
+    color:#e11d48;
+    text-decoration:none;
+}
+
+.login-options a:hover{
+    text-decoration:underline;
+}
+
+#loginBtn{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    background:linear-gradient(135deg,#e11d48,#be123c);
+    color:#fff;
+    font-size:16px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.3s;
+}
+
+#loginBtn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 25px rgba(225,29,72,.3);
+}
+
+.signup{
+    text-align:center;
+    margin-top:20px;
+    color:#6b7280;
+    font-size:14px;
+}
+
+.signup a{
+    color:#e11d48;
+    text-decoration:none;
+    font-weight:600;
+}

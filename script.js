@@ -1,10 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
     // ── DOM References ──
     const screens = {
-        landing: document.getElementById('landing'),
-        loader: document.getElementById('loader'),
-        dashboard: document.getElementById('dashboard')
-    };
+    login: document.getElementById('login'),
+    landing: document.getElementById('landing'),
+    loader: document.getElementById('loader'),
+    dashboard: document.getElementById('dashboard')
+};
     const generateBtn = document.getElementById('generateBtn');
     const newQueryBtn = document.getElementById('newQueryBtn');
     const queryInput = document.getElementById('queryInput');
@@ -14,6 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const loaderSubText = document.getElementById('loaderSubText');
     const progressBar = document.getElementById('progressBar');
     const canvasContainer = document.getElementById('canvasContainer');
+    const loginBtn = document.getElementById('loginBtn');
+
 
     // Smooth scroll for nav links
     document.getElementById('navFeatures')?.addEventListener('click', e => { e.preventDefault(); document.getElementById('featuresSection')?.scrollIntoView({ behavior:'smooth' }); });
@@ -424,16 +427,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ── Events ──
-    generateBtn.addEventListener('click', () => {
-        const query = queryInput.value.trim();
-        if (query) {
-            simulateProcessing(query);
-        } else {
-            queryInput.style.animation = "shake 0.4s";
-            setTimeout(() => queryInput.style.animation = "", 400);
-        }
-    });
+    
+loginBtn.addEventListener("click", (e) => {
 
+    e.preventDefault();
+
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    if(email === "" || password === ""){
+        alert("Please enter Email and Password");
+        return;
+    }
+
+    document.getElementById("login").style.display = "none";
+    showScreen("landing");
+});
+    
     // Refine bar: re-generate from dashboard
     refineBtn.addEventListener('click', () => {
         const query = refineInput.value.trim();
