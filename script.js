@@ -16,7 +16,35 @@ function initialize() {
     const progressBar = document.getElementById('progressBar');
     const canvasContainer = document.getElementById('canvasContainer');
     const loginBtn = document.getElementById('loginBtn');
+    const loginScreen = document.getElementById('login');
 
+    // ── Login Handler ──
+    if (loginBtn && loginScreen) {
+        loginBtn.addEventListener('click', () => {
+            const email = document.getElementById('email')?.value.trim();
+            const password = document.getElementById('password')?.value.trim();
+
+            if (!email || !password) {
+                // Shake the login container if fields empty
+                const container = loginScreen.querySelector('.login-container');
+                if (container) {
+                    container.style.animation = 'none';
+                    setTimeout(() => { container.style.animation = 'shake 0.4s'; }, 10);
+                }
+                return;
+            }
+
+            // Fade out login screen and reveal the app
+            loginScreen.style.transition = 'opacity 0.4s ease';
+            loginScreen.style.opacity = '0';
+            setTimeout(() => { loginScreen.style.display = 'none'; }, 420);
+        });
+
+        // Also allow Enter key on password field
+        document.getElementById('password')?.addEventListener('keypress', e => {
+            if (e.key === 'Enter') loginBtn.click();
+        });
+    }
 
     // Smooth scroll for nav links
     document.getElementById('navFeatures')?.addEventListener('click', e => { e.preventDefault(); document.getElementById('featuresSection')?.scrollIntoView({ behavior:'smooth' }); });
