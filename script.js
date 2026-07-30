@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+function initialize() {
     // ── DOM References ──
     const screens = {
     login: document.getElementById('login'),
@@ -464,7 +464,14 @@ loginBtn.addEventListener("click", (e) => {
     });
 
     queryInput.addEventListener('keypress', e => { if(e.key==='Enter') { e.preventDefault(); generateBtn.click(); } });
-});
+}
+
+// Safe initialization — works whether DOM is already loaded or not
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initialize);
+} else {
+    initialize();
+}
 
 // Shake keyframes
 const s = document.createElement('style');
