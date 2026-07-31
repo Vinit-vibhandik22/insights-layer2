@@ -127,10 +127,11 @@ REQUIRED JSON SCHEMA (ALL fields mandatory):
 ═══════════════════════════════════════════
 MERMAID ARCHITECTURE DIAGRAM — MANDATORY RULES
 ═══════════════════════════════════════════
-The architectureMermaid field MUST be a detailed enterprise architecture using Mermaid subgraphs.
-Model it after a Netflix/Google-style microservices diagram.
+The architectureMermaid field MUST scale in complexity based on the project idea.
+If it is a simple CRUD app, provide a simple, clean architecture (e.g., Client -> Server -> DB).
+If it is a complex enterprise system, use a highly detailed microservices architecture with subgraphs (like Netflix/Google).
 
-REQUIRED STRUCTURE — use this as your template (adapt to the project domain):
+EXAMPLE STRUCTURE FOR A COMPLEX SYSTEM (adapt and simplify if the idea is simpler):
 
 graph TD
   subgraph PRESENTATION["🖥️ PRESENTATION LAYER"]
@@ -201,8 +202,8 @@ RULES:
 2. ALL node text MUST be in double quotes: A1["Label"]
 3. NO unescaped characters: & < > ( ) — write "and" not "&"
 4. Use \\n (double-backslash n) for line breaks inside node labels
-5. Minimum 15 nodes across all subgraphs
-6. Use subgraph IDENTIFIER["Display Label"] syntax
+5. Scale the complexity based on the idea (simple CRUD = 3-5 nodes, complex AI = 15+ nodes with subgraphs)
+6. If using subgraphs, use subgraph IDENTIFIER["Display Label"] syntax
 7. style directives MUST reference the exact node identifier`;
 
   const userPrompt = `PROJECT IDEA: ${query}
@@ -221,7 +222,7 @@ ARCHITECTURE INSTRUCTIONS:
 - External integrations should match real APIs relevant to this domain
 === END RESEARCH CONTEXT ===` : ''}
 
-Generate the complete enterprise-grade project blueprint JSON now. The architecture diagram MUST use subgraphs and have 15+ nodes. The ideaScore MUST reference specific data from the research context above.`;
+Generate the complete enterprise-grade project blueprint JSON now. The architecture diagram MUST be perfectly tailored to the complexity of the idea (simple for simple ideas, complex subgraphs for enterprise ideas). The ideaScore MUST reference specific data from the research context above.`;
 
   return { systemPrompt, userPrompt };
 }
