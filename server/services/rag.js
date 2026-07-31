@@ -358,8 +358,8 @@ function assembleContext(papers, repos, marketIntel, implContext, vulnerabilitie
     });
   }
 
-  // Expand context budget to 8000 chars for richer LLM grounding
-  return sections.join('\n').substring(0, 8000);
+  // Expand context budget to 4000 chars to stay under Groq TPM limits
+  return sections.join('\n').substring(0, 4000);
 }
 
 // ── Utility ──────────────────────────────────────────────────────────────────
