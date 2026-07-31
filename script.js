@@ -3,7 +3,9 @@
 // Connects to Express backend at /api/* instead of using fake setTimeout loops
 // ═══════════════════════════════════════════════════════════════════════════
 
-const API_BASE = window.location.origin; // Same-origin — served by Express
+const API_BASE = window.location.port === '5500' || window.location.protocol === 'file:' 
+  ? 'http://localhost:3000' 
+  : window.location.origin; // Same-origin — served by Express
 
 // ── Mermaid.js Loader ──────────────────────────────────────────────────────
 (function loadMermaid() {
@@ -59,16 +61,6 @@ function initialize() {
   // ── Login Handler ──
   if (loginBtn && loginScreen) {
     loginBtn.addEventListener('click', () => {
-      const email = document.getElementById('email')?.value.trim();
-      const password = document.getElementById('password')?.value.trim();
-      if (!email || !password) {
-        const container = loginScreen.querySelector('.login-container');
-        if (container) {
-          container.style.animation = 'none';
-          setTimeout(() => { container.style.animation = 'shake 0.4s'; }, 10);
-        }
-        return;
-      }
       loginScreen.style.transition = 'opacity 0.4s ease';
       loginScreen.style.opacity = '0';
       setTimeout(() => { loginScreen.style.display = 'none'; }, 420);
