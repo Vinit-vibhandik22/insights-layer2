@@ -36,9 +36,9 @@ async function generateBlueprint(query, ragContext) {
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
       ],
-      temperature: 0.1,
-      max_tokens: 4096,
-      top_p: 0.9,
+      temperature: 0.2,
+      max_tokens: 8192,
+      top_p: 0.95,
       response_format: { type: 'json_object' }
     });
 
