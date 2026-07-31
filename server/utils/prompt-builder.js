@@ -23,6 +23,11 @@ The JSON must exactly match this schema:
     "devops": ["Technology1", "Technology2"]
   },
   "architectureMermaid": "graph TD\n  A[\"Component1\"] --> B[\"Component2\"]\n  ...",
+  // MERMAID RULES:
+  // 1. MUST use strict flowchart syntax.
+  // 2. Wrap all node text in double quotes: A["Text"].
+  // 3. Do NOT use unescaped characters inside node text.
+  // 4. Do NOT use markdown inside mermaid blocks.
   "stats": [
     {"val": "number or stat", "label": "description"}
   ],

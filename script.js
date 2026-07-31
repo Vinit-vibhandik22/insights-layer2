@@ -50,6 +50,36 @@ function initialize() {
   const loaderText = document.getElementById('loaderText');
   const loaderSubText = document.getElementById('loaderSubText');
   const progressBar = document.getElementById('progressBar');
+  
+  // ── Auth Handler (Clerk) ──
+  const checkClerkAuth = async () => {
+    if (window.Clerk) {
+      await window.Clerk.load();
+      if (window.Clerk.user) {
+        loginScreen.style.transition = 'opacity 0.4s ease';
+        loginScreen.style.opacity = '0';
+        const gridBg = document.querySelector('.grid-bg');
+        if(gridBg) gridBg.style.animation = 'none';
+        
+        setTimeout(() => {
+          loginScreen.style.display = 'none';
+          showScreen('landing');
+        }, 420);
+        
+        window.Clerk.mountUserButton(document.getElementById('clerk-user-button'));
+      } else {
+        loginScreen.style.display = 'flex';
+        loginScreen.style.opacity = '1';
+        window.Clerk.mountSignIn(document.getElementById('clerk-sign-in'));
+      }
+    }
+  };
+
+  if (document.readyState === 'complete') {
+    checkClerkAuth();
+  } else {
+    window.addEventListener('load', checkClerkAuth);
+  }
   const canvasContainer = document.getElementById('canvasContainer');
   const loginBtn = document.getElementById('loginBtn');
   const loginScreen = document.getElementById('login');
@@ -122,11 +152,19 @@ function initialize() {
     let blueprint = null;
 
     try {
-      const response = await fetch(`${API_BASE}/api/generate-blueprint`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query })
-      });
+        let clerkToken = null;
+        if (window.Clerk && window.Clerk.session) {
+          clerkToken = await window.Clerk.session.getToken();
+        }
+        
+        const headers = { 'Content-Type': 'application/json' };
+        if (clerkToken) headers['Authorization'] = `Bearer ${clerkToken}`;
+
+        const response = await fetch(`${API_BASE}/api/generate-blueprint`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ query })
+        });
 
       if (!response.ok) {
         const err = await response.json();
@@ -395,7 +433,7 @@ function initialize() {
   style D fill:#e11d48,color:#fff`,
       deepSearchResults: [
         { type: "paper", title: "LSTM Networks for Household Spending Prediction", source: "AAAI, 2024", desc: "Time-series model predicts monthly spending categories with 85% accuracy.", url: "https://aaai.org" },
-        { type: "github", title: "plaid-fintech-starter (★ 890)", source: "github.com/plaid/quickstart", desc: "Official Plaid quickstart for bank account linking.", url: "https://github.com/plaid/quickstart" },
+        { type: "github", title: "plaid-fintech-starter (★ 890)", source: "github.com/plaid/quickstart", desc: "Official Plaid quickstart for bank account linking.", url: "https://github.com" },
         { type: "patent", title: "Automated Budget Reallocation System", source: "US Patent 2023/0298102", desc: "AI dynamically adjusts budget categories based on spending trends.", url: "https://patents.google.com" }
       ],
       mentorChat: [
@@ -638,15 +676,22 @@ function initialize() {
       }
 
       container.removeAttribute('data-processed');
-      container.innerHTML = code;
       container.className = 'mermaid';
 
-      const { svg } = await mermaid.render('arch-diagram-' + Date.now(), code);
+      // Parse output for potential invalid mermaid chars
+      let safeCode = code.replace(/```mermaid\n?/, '').replace(/```$/, '').trim();
+
+      const { svg } = await mermaid.render('arch-diagram-' + Date.now(), safeCode);
       container.innerHTML = svg;
       container.className = 'mermaid-rendered';
     } catch (err) {
       console.warn('[Mermaid] Render error:', err.message);
-      container.innerHTML = `<pre style="font-size:11px;color:#888;padding:16px;white-space:pre-wrap;background:#f5f5f5;border-radius:8px;">${escapeHtml(code)}</pre>`;
+      container.innerHTML = `<div style="padding: 2rem; color: #ff4444; text-align: center; border: 1px dashed #ffb3b3; border-radius: 8px; margin: 1rem 0; background: #fff5f5;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom: 1rem;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        <h4 style="margin: 0 0 0.5rem 0; color: #d32f2f;">Diagram Generation Failed</h4>
+        <p style="font-size: 0.9rem; color: #666; margin: 0 0 1rem 0;">The AI generated invalid flowchart syntax. You can ask the AI Mentor to redraw the diagram.</p>
+        <pre style="text-align: left; background: #222; color: #0f0; padding: 1rem; border-radius: 4px; font-size: 11px; overflow-x: auto;">${escapeHtml(code)}</pre>
+      </div>`;
     }
   }
 
