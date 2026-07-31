@@ -687,7 +687,6 @@ function initialize() {
 
     // ── Tab: Architecture Diagram (Mermaid) ──
     const archTab = el('div', 'tab-panel', 'tabArchitecture');
-    const mermaidCode = bp.architectureMermaid || '';
     archTab.appendChild(createBlock('SYSTEM ARCHITECTURE DIAGRAM', `
       <div class="mermaid-wrapper">
         ${mermaidCode
