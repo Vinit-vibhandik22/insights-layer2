@@ -89,27 +89,23 @@ function initialize() {
 
     if (window.Clerk) {
       try {
-        const clerkPubKey = 'pk_test_Y2FwYWJsZS1hc3AtMTEuY2xlcmsuYWNjb3VudHMuZGV2JA';
-        const clerkInstance = typeof window.Clerk === 'function' ? new window.Clerk(clerkPubKey) : window.Clerk;
-        window.clerkApp = clerkInstance; // Expose globally for API calls
-        
-        await clerkInstance.load();
+        await window.Clerk.load();
 
-        if (clerkInstance.user) {
+        if (window.Clerk.user) {
           // Already signed in → go straight to landing
           dismissLogin();
-          clerkInstance.mountUserButton(document.getElementById('clerk-user-button'));
+          window.Clerk.mountUserButton(document.getElementById('clerk-user-button'));
         } else {
           // Not signed in → mount Clerk's SignIn widget
           loginScreen.style.display = 'flex';
           loginScreen.style.opacity = '1';
-          clerkInstance.mountSignIn(document.getElementById('clerk-sign-in'));
+          window.Clerk.mountSignIn(document.getElementById('clerk-sign-in'));
 
           // Listen for sign-in completion
-          clerkInstance.addListener(({ user }) => {
+          window.Clerk.addListener(({ user }) => {
             if (user) {
               dismissLogin();
-              clerkInstance.mountUserButton(document.getElementById('clerk-user-button'));
+              window.Clerk.mountUserButton(document.getElementById('clerk-user-button'));
             }
           });
         }
@@ -189,8 +185,8 @@ function initialize() {
 
     try {
         let clerkToken = null;
-        if (window.clerkApp && window.clerkApp.session) {
-          clerkToken = await window.clerkApp.session.getToken();
+        if (window.Clerk && window.Clerk.session) {
+          clerkToken = await window.Clerk.session.getToken();
         }
         
         const headers = { 'Content-Type': 'application/json' };
