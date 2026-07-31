@@ -3,6 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const { provisionProject } = require('../services/github');
+const { updateBlueprintWithRepo } = require('../services/supabase');
 
 // ── POST /api/provision-repo ───────────────────────────────────────────────
 router.post('/', async (req, res) => {
@@ -46,6 +47,11 @@ router.post('/', async (req, res) => {
       includeEnvTemplate,
       includeMilestones
     });
+
+    // Update Supabase if blueprintId was passed
+    if (req.body.blueprintId && results.repository?.url) {
+      await updateBlueprintWithRepo(req.body.blueprintId, results.repository.url);
+    }
 
     res.json({
       success: true,

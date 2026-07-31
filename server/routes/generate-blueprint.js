@@ -4,6 +4,7 @@ const express = require('express');
 const router = express.Router();
 const { executeRAGPipeline } = require('../services/rag');
 const { generateBlueprint } = require('../services/groq-client');
+const { saveBlueprint } = require('../services/supabase');
 
 // ── SSE Helper ─────────────────────────────────────────────────────────────
 function sendSSE(res, event, data) {
@@ -101,9 +102,18 @@ router.post('/', async (req, res) => {
     // Small delay for UX (lets the progress bar fill)
     await new Promise(r => setTimeout(r, 500));
 
+    // ── Save to Supabase ────────────────────────────────────────────────────
+    const sessionId = req.headers['x-session-id'] || req.ip;
+    const blueprintId = await saveBlueprint({
+      query: cleanQuery,
+      blueprint,
+      ragContext: ragResult.rawData,
+      sessionId
+    });
+
     // ── Send final blueprint ───────────────────────────────────────────────
-    sendSSE(res, 'blueprint', blueprint);
-    sendSSE(res, 'done', { success: true });
+    sendSSE(res, 'blueprint', { ...blueprint, _id: blueprintId });
+    sendSSE(res, 'done', { success: true, blueprintId });
 
   } catch (err) {
     console.error('[Blueprint] Generation error:', err.message);
