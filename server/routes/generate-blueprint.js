@@ -130,27 +130,45 @@ router.post('/', async (req, res) => {
 function mergeRAGIntoBlueprint(blueprint, ragData) {
   const merged = { ...blueprint };
 
-  // Replace fake deepSearchResults with real ones if available
+  // Build rich deep search results from ALL real RAG data
   const realResults = [];
 
-  for (const paper of (ragData.papers || []).slice(0, 3)) {
+  // Add ALL papers found (up to 10)
+  for (const paper of (ragData.papers || []).slice(0, 10)) {
     realResults.push({
       type: 'paper',
       title: paper.title,
       source: paper.source || 'Academic Source',
-      desc: paper.snippet || 'Relevant academic research for this domain.',
-      url: paper.url
+      desc: paper.snippet
+        ? paper.snippet.substring(0, 200)
+        : 'Relevant academic research for this domain.',
+      url: paper.url,
+      year: paper.year,
+      citations: paper.citations
     });
   }
 
-  for (const repo of (ragData.repos || []).slice(0, 3)) {
+  // Add ALL repos found (up to 10), but filter out clearly irrelevant ones
+  for (const repo of (ragData.repos || []).slice(0, 10)) {
     realResults.push({
       type: 'github',
       title: repo.title,
       source: repo.source || 'GitHub',
-      desc: repo.snippet || 'Open-source reference implementation.',
-      url: repo.url
+      desc: repo.snippet
+        ? repo.snippet.substring(0, 200)
+        : 'Open-source reference implementation.',
+      url: repo.url,
+      language: repo.language,
+      topics: repo.topics
     });
+  }
+
+  // Merge LLM-generated deepSearchResults (labelled clearly) only if NOT already in realResults
+  const realUrls = new Set(realResults.map(r => r.url));
+  for (const item of (blueprint.deepSearchResults || [])) {
+    if (item.url && !realUrls.has(item.url)) {
+      realResults.push({ ...item, source: item.source + ' (AI-inferred)' });
+    }
   }
 
   if (realResults.length > 0) {

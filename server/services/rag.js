@@ -132,17 +132,31 @@ async function searchGitHubRepos(query) {
     headers['Authorization'] = `Bearer ${process.env.GITHUB_TOKEN}`;
   }
 
-  // Run 3 GitHub queries in parallel: starred repos, recent repos, topic-based
+  // Extract meaningful domain keywords from the query
+  // Strip filler words so GitHub gets precise terms
+  const stopWords = new Set(['a', 'an', 'the', 'for', 'and', 'or', 'in', 'on', 'to', 'of', 'with', 'that', 'is', 'app', 'build', 'create', 'make', 'solution']);
+  const domainKeywords = query
+    .toLowerCase()
+    .replace(/[^a-z0-9 ]/g, '')
+    .split(' ')
+    .filter(w => w.length > 2 && !stopWords.has(w))
+    .slice(0, 4)
+    .join(' ');
+
+  // Three targeted queries — all include NOT fork:true to avoid forks, NOT "awesome-" to avoid list repos
   const queries = [
-    `${query} in:readme in:description`,
-    `${query} topic:machine-learning topic:ai stars:>50`,
-    `${query} in:name language:python OR language:javascript stars:>10`
+    // Most relevant: exact domain match with high stars
+    `${domainKeywords} stars:>20 NOT "awesome-" NOT "awesome list" NOT "collection" in:name,description`,
+    // Broader: topic-based search for domain area
+    `${domainKeywords} topic:python OR topic:machine-learning OR topic:iot OR topic:mobile NOT "awesome-"`,
+    // Recent: fresh projects in the domain
+    `${domainKeywords} pushed:>2023-01-01 stars:>5 NOT fork:true NOT "awesome-" in:description`
   ];
 
   try {
     const allResults = await Promise.allSettled(
       queries.map(async q => {
-        const url = `https://api.github.com/search/repositories?q=${encodeURIComponent(q)}&sort=stars&order=desc&per_page=5`;
+        const url = `https://api.github.com/search/repositories?q=${encodeURIComponent(q)}&sort=stars&order=desc&per_page=6`;
         const res = await fetch(url, { headers });
         if (!res.ok) return [];
         const data = await res.json();
@@ -180,13 +194,14 @@ async function searchGitHubRepos(query) {
         lastUpdated: repo.updated_at?.split('T')[0]
       }));
 
-    console.log(`[RAG] GitHub found ${repos.length} unique repositories`);
+    console.log(`[RAG] GitHub found ${repos.length} unique repositories (keywords: "${domainKeywords}")`);
     return repos;
   } catch (err) {
     console.error('[RAG] GitHub search failed:', err.message);
     return [];
   }
 }
+
 
 // ── NPM Security & Vulnerability Check ──────────────────────────────────────
 async function checkNpmVulnerabilities(techStackKeywords) {
