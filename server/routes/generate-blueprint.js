@@ -3,7 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const { executeRAGPipeline } = require('../services/rag');
-const { generateBlueprint } = require('../services/groq-client');
+const { generateBlueprint } = require('../services/llm-client');
 const { saveBlueprint } = require('../services/supabase');
 
 // ── SSE Helper ─────────────────────────────────────────────────────────────

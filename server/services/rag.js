@@ -1,10 +1,13 @@
 'use strict';
 
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+const fetch = require('node-fetch');
 
 // ── Tavily: Academic Research Papers ────────────────────────────────────────
 async function searchAcademicPapers(query) {
-  if (!process.env.TAVILY_API_KEY) return [];
+  if (!process.env.TAVILY_API_KEY) {
+    console.warn('[RAG] Tavily API key not set, skipping academic search');
+    return [];
+  }
   try {
     const response = await fetch('https://api.tavily.com/search', {
       method: 'POST',
@@ -18,7 +21,10 @@ async function searchAcademicPapers(query) {
         include_raw_content: false
       })
     });
-    if (!response.ok) return [];
+    if (!response.ok) {
+      console.error(`[RAG] Tavily academic HTTP error: ${response.status}`);
+      return [];
+    }
     const data = await response.json();
     const results = (data.results || []).slice(0, 8).map(r => ({
       type: 'paper',
@@ -51,7 +57,10 @@ async function searchMarketIntelligence(query) {
         include_raw_content: false
       })
     });
-    if (!response.ok) return [];
+    if (!response.ok) {
+      console.error(`[RAG] Tavily market HTTP error: ${response.status}`);
+      return [];
+    }
     const data = await response.json();
     console.log(`[RAG] Tavily (market) found ${(data.results || []).length} results`);
     return (data.results || []).slice(0, 5).map(r => ({
@@ -61,6 +70,7 @@ async function searchMarketIntelligence(query) {
       source: extractDomain(r.url)
     }));
   } catch (err) {
+    console.error('[RAG] Tavily market search failed:', err.message);
     return [];
   }
 }
@@ -89,6 +99,7 @@ async function searchImplementationContext(query) {
       source: extractDomain(r.url)
     }));
   } catch (err) {
+    console.error('[RAG] Tavily impl context search failed:', err.message);
     return [];
   }
 }
@@ -96,12 +107,22 @@ async function searchImplementationContext(query) {
 // ── Semantic Scholar: Deep Paper Discovery ───────────────────────────────────
 async function searchSemanticScholar(query) {
   try {
-    const encoded = encodeURIComponent(query);
+    // Extract meaningful search terms (max 200 chars for API)
+    const searchQuery = extractDomainKeywords(query).join(' ');
+    const encoded = encodeURIComponent(searchQuery);
     const url = `https://api.semanticscholar.org/graph/v1/paper/search?query=${encoded}&limit=8&fields=title,abstract,year,authors,citationCount,externalIds,url`;
+    
+    console.log(`[RAG] Semantic Scholar searching: "${searchQuery}"`);
+    
     const response = await fetch(url, {
       headers: { 'User-Agent': 'iNSIGHTS-Layer2-Research-Bot' }
     });
-    if (!response.ok) return [];
+    
+    if (!response.ok) {
+      console.error(`[RAG] Semantic Scholar HTTP error: ${response.status} ${response.statusText}`);
+      return [];
+    }
+    
     const data = await response.json();
     const papers = (data.data || []).slice(0, 8).map(p => ({
       type: 'paper',
@@ -121,6 +142,32 @@ async function searchSemanticScholar(query) {
   }
 }
 
+// ── Extract DOMAIN keywords (not adjectives/filler) ──────────────────────────
+function extractDomainKeywords(query) {
+  // These are filler/adjective words that ruin GitHub/Scholar searches
+  const stopWords = new Set([
+    'a', 'an', 'the', 'for', 'and', 'or', 'in', 'on', 'to', 'of', 'with',
+    'that', 'is', 'app', 'build', 'create', 'make', 'solution', 'system',
+    'using', 'use', 'based', 'powered', 'driven', 'smart', 'intelligent',
+    'production', 'ready', 'productionready', 'scalable', 'responsive',
+    'premium', 'polished', 'secure', 'rich', 'fast', 'modern', 'advanced',
+    'real', 'time', 'realtime', 'high', 'performance', 'robust', 'powerful',
+    'comprehensive', 'complete', 'full', 'featured', 'beautiful', 'elegant',
+    'develop', 'developing', 'developed', 'building', 'built', 'creating',
+    'platform', 'application', 'project', 'tool', 'service', 'support'
+  ]);
+
+  const words = query
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, ' ')  // Keep hyphens for compound words
+    .replace(/-/g, ' ')              // Split hyphenated words
+    .split(/\s+/)
+    .filter(w => w.length > 2 && !stopWords.has(w));
+
+  // Deduplicate and take top 6 domain-relevant keywords
+  return [...new Set(words)].slice(0, 6);
+}
+
 // ── GitHub: Multi-Query Deep Repo Discovery ──────────────────────────────────
 async function searchGitHubRepos(query) {
   const headers = {
@@ -132,33 +179,30 @@ async function searchGitHubRepos(query) {
     headers['Authorization'] = `Bearer ${process.env.GITHUB_TOKEN}`;
   }
 
-  // Extract meaningful domain keywords from the query
-  // Strip filler words so GitHub gets precise terms
-  const stopWords = new Set(['a', 'an', 'the', 'for', 'and', 'or', 'in', 'on', 'to', 'of', 'with', 'that', 'is', 'app', 'build', 'create', 'make', 'solution']);
-  const domainKeywords = query
-    .toLowerCase()
-    .replace(/[^a-z0-9 ]/g, '')
-    .split(' ')
-    .filter(w => w.length > 2 && !stopWords.has(w))
-    .slice(0, 4)
-    .join(' ');
+  const domainKeywords = extractDomainKeywords(query);
+  const keywordStr = domainKeywords.join(' ');
+  
+  console.log(`[RAG] GitHub searching with keywords: "${keywordStr}"`);
 
-  // Three targeted queries — all include NOT fork:true to avoid forks, NOT "awesome-" to avoid list repos
+  // Three targeted queries with domain keywords
   const queries = [
-    // Most relevant: exact domain match with high stars
-    `${domainKeywords} stars:>20 NOT "awesome-" NOT "awesome list" NOT "collection" in:name,description`,
-    // Broader: topic-based search for domain area
-    `${domainKeywords} topic:python OR topic:machine-learning OR topic:iot OR topic:mobile NOT "awesome-"`,
-    // Recent: fresh projects in the domain
-    `${domainKeywords} pushed:>2023-01-01 stars:>5 NOT fork:true NOT "awesome-" in:description`
+    // Most relevant: exact domain match with some stars
+    `${keywordStr} stars:>10 in:name,description,readme`,
+    // Broader: first 3 keywords + topic filters
+    `${domainKeywords.slice(0, 3).join(' ')} topic:python OR topic:javascript OR topic:machine-learning`,
+    // Recent: fresh projects
+    `${domainKeywords.slice(0, 4).join(' ')} pushed:>2023-01-01 stars:>3`
   ];
 
   try {
     const allResults = await Promise.allSettled(
       queries.map(async q => {
-        const url = `https://api.github.com/search/repositories?q=${encodeURIComponent(q)}&sort=stars&order=desc&per_page=6`;
+        const url = `https://api.github.com/search/repositories?q=${encodeURIComponent(q)}&sort=stars&order=desc&per_page=8`;
         const res = await fetch(url, { headers });
-        if (!res.ok) return [];
+        if (!res.ok) {
+          console.error(`[RAG] GitHub search HTTP error: ${res.status} for query: "${q}"`);
+          return [];
+        }
         const data = await res.json();
         return (data.items || []);
       })
@@ -194,7 +238,7 @@ async function searchGitHubRepos(query) {
         lastUpdated: repo.updated_at?.split('T')[0]
       }));
 
-    console.log(`[RAG] GitHub found ${repos.length} unique repositories (keywords: "${domainKeywords}")`);
+    console.log(`[RAG] GitHub found ${repos.length} unique repositories`);
     return repos;
   } catch (err) {
     console.error('[RAG] GitHub search failed:', err.message);
@@ -358,8 +402,8 @@ function assembleContext(papers, repos, marketIntel, implContext, vulnerabilitie
     });
   }
 
-  // Expand context budget to 4000 chars to stay under Groq TPM limits
-  return sections.join('\n').substring(0, 4000);
+  // Send full context — modern LLMs easily handle 16k+ tokens
+  return sections.join('\n');
 }
 
 // ── Utility ──────────────────────────────────────────────────────────────────

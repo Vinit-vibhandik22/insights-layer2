@@ -30,6 +30,12 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
+/* Hide Mermaid auto-injected error SVGs */
+svg[id^="d-arch-"],
+body > svg.error-icon {
+    display: none !important;
+}
+
 /* ── Background ── */
 .grid-bg {
     position: fixed;
@@ -685,6 +691,7 @@ body {
 }
 
 /* Main Canvas */
+<<<<<<< HEAD
 .dashboard-main {
     flex-grow: 1;
     display: flex;
@@ -692,6 +699,14 @@ body {
     background: #fafafa;
     position: relative;
 }
+=======
+.dashboard-main { flex-grow:1; display:flex; flex-direction:column; background:#fafafa; position:relative; min-width:0; overflow:hidden; }
+.dashboard-main::before { content:''; position:absolute; top:0;left:0;right:0;bottom:0; background-image: radial-gradient(rgba(0,0,0,0.04) 1px, transparent 1px); background-size:20px 20px; z-index:0; pointer-events:none; }
+.dash-header { padding:16px 28px; border-bottom:1px solid var(--border); background:rgba(255,255,255,0.9); backdrop-filter:blur(12px); z-index:1; display:flex; justify-content:space-between; align-items:center; }
+.breadcrumb { color:var(--text-muted); font-size:0.88rem; }
+.text-white { color:#0a0a0a; font-weight:600; }
+.user-query { background:rgba(225,29,72,0.06); border:1px solid rgba(225,29,72,0.15); padding:5px 12px; border-radius:6px; font-size:0.82rem; color:var(--primary); max-width:50%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+>>>>>>> 352616e (fix: resolve RAG pipeline, LLM client token limits, and deterministic Mermaid rendering)
 
 .dashboard-main::before {
     content: '';
@@ -742,6 +757,7 @@ body {
 
 /* ── Refine Bar (Editable Prompt Capsule) ── */
 .refine-bar {
+<<<<<<< HEAD
     display: flex;
     align-items: center;
     gap: 12px;
@@ -755,6 +771,12 @@ body {
     border-radius: 99px; /* Capsule shape */
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0, 0, 0, 0.01);
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+=======
+    display:flex; align-items:center; gap:10px;
+    padding:8px 8px 8px 18px; margin:0; z-index:1;
+    background: #ffffff; border-bottom:1px solid var(--border);
+    overflow:hidden;
+>>>>>>> 352616e (fix: resolve RAG pipeline, LLM client token limits, and deterministic Mermaid rendering)
 }
 
 .refine-bar:focus-within {
@@ -845,6 +867,7 @@ body {
 }
 
 /* Canvas Container */
+<<<<<<< HEAD
 .canvas {
     padding: 16px 28px 28px 28px;
     overflow-y: auto;
@@ -930,6 +953,21 @@ body {
 .warning-box .icon {
     font-size: 1.4rem;
 }
+=======
+.canvas { padding:28px; overflow-y:auto; overflow-x:hidden; z-index:1; display:flex; flex-direction:column; gap:20px; flex-grow:1; }
+
+/* ── Dashboard Cards ── */
+.figma-block { background:#ffffff; border:1px solid var(--border); border-radius:14px; padding:22px; box-shadow:0 2px 12px rgba(0,0,0,0.05); max-width:100%; overflow:hidden; word-break:break-word; }
+.block-label { font-size:0.75rem; font-family:monospace; color:var(--text-muted); margin-bottom:16px; text-transform:uppercase; letter-spacing:1px; }
+
+/* Stats Row */
+.stats-row { display:flex; gap:16px; flex-wrap:wrap; }
+.stat-box { background:#fafafa; border:1px solid var(--border); padding:18px; border-radius:10px; flex:1; min-width:120px; }
+.stat-val { font-size:2rem; font-weight:700; margin-bottom:4px; color:var(--primary); }
+.stat-lbl { font-size:0.82rem; color:var(--text-muted); }
+.warning-box { background:rgba(245,158,11,0.06); border-color:rgba(245,158,11,0.2); display:flex; align-items:center; gap:12px; }
+.warning-box .icon { font-size:1.4rem; }
+>>>>>>> 352616e (fix: resolve RAG pipeline, LLM client token limits, and deterministic Mermaid rendering)
 
 /* Arch Diagram */
 .arch-diagram {

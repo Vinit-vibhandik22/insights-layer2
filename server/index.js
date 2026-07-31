@@ -74,7 +74,7 @@ app.use((err, req, res, next) => {
 
 // ── Start Server ─────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   const line = '─'.repeat(50);
   console.log(`\n${line}`);
   console.log(`🚀  iNSIGHTS Layer 2  —  http://localhost:${PORT}`);
@@ -85,6 +85,19 @@ app.listen(PORT, () => {
   console.log(`🔐  Clerk Auth:             ${process.env.CLERK_SECRET_KEY ? '✅ Connected' : '⚠️  Optional'}`);
   console.log(`🐙  GitHub OAuth:           ${process.env.GITHUB_OAUTH_CLIENT_ID ? '✅ Configured' : '⚠️  Use PAT in modal'}`);
   console.log(line + '\n');
+});
+
+// ── Graceful error handling — prevents "app crashed" on port conflict ─────
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`\n❌  Port ${PORT} is already in use.`);
+    console.error(`   Run this to free it:  npx kill-port ${PORT}`);
+    console.error(`   Or change PORT in .env\n`);
+    process.exit(1);
+  } else {
+    console.error('[Server Error]', err);
+    process.exit(1);
+  }
 });
 
 module.exports = app;

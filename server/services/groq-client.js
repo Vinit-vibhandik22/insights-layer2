@@ -37,7 +37,7 @@ async function generateBlueprint(query, ragContext) {
         { role: 'user', content: userPrompt }
       ],
       temperature: 0.2,
-      max_tokens: 4096,
+      max_tokens: 2800,
       top_p: 0.95,
       response_format: { type: 'json_object' }
     });
@@ -122,11 +122,13 @@ function validateAndNormalizeBlueprint(bp, query) {
       devops: bp.techStack?.devops || ['Docker', 'GitHub Actions'],
       external_apis: bp.techStack?.external_apis || []
     },
-    architectureMermaid: bp.architectureMermaid || generateDefaultMermaid(bp),
+    architectureMermaid: (bp.architectureMermaid && bp.architectureMermaid.includes('graph'))
+      ? bp.architectureMermaid
+      : generateDefaultMermaid(bp, query),
     systemDesignDetails: bp.systemDesignDetails || {},
-    stats: bp.stats || [
-      { val: '10M+', label: 'Potential users impacted' },
-      { val: '3x', label: 'Faster than manual approach' }
+    stats: (bp.stats && Array.isArray(bp.stats) && bp.stats.length > 0) ? bp.stats : [
+      { val: '$12.5B', label: 'Global Addressable Market by 2027' },
+      { val: '84%', label: 'Automation & Processing Accuracy' }
     ],
     warning: bp.warning || 'Manual approaches in this domain are inefficient and do not scale.',
     arch: bp.arch || [
@@ -159,20 +161,35 @@ function validateAndNormalizeBlueprint(bp, query) {
   };
 }
 
-function generateDefaultMermaid(bp) {
-  const frontend = (bp.techStack?.frontend?.[0] || 'React');
-  const backend = (bp.techStack?.backend?.[0] || 'Node.js');
+function generateDefaultMermaid(bp, query) {
+  const frontend = (bp.techStack?.frontend?.[0] || 'React 18');
+  const backend = (bp.techStack?.backend?.[0] || 'Node.js Express');
   const db = (bp.techStack?.database?.[0] || 'PostgreSQL');
-  const ai = (bp.techStack?.aiMl?.[0] || 'Python ML');
+  const ai = (bp.techStack?.aiMl?.[0] || 'Python FastAPI');
 
   return `graph TD
-  A["📱 ${frontend}\n(Client)"] -->|REST API| B["⚙️ ${backend}\n(API Server)"]
-  B --> C["🧠 ${ai}\n(AI Engine)"]
-  B --> D["🗄️ ${db}\n(Database)"]
-  C -->|Predictions| B
-  B -->|Response| A
-  D --> E["📊 Analytics\nDashboard"]
-  style C fill:#e11d48,color:#fff`;
+  subgraph UI["🖥️ PRESENTATION LAYER"]
+    A1["Web Client\\n(${frontend})"]
+    A2["Mobile App\\n(React Native)"]
+  end
+  subgraph GW["🔌 API GATEWAY & AUTH"]
+    B1["API Gateway\\n(Kong / Rate Limiter)"]
+    B2["Auth Middleware\\n(JWT + Clerk)"]
+  end
+  subgraph SVC["⚙️ BACKEND SERVICES"]
+    C1["Core Service\\n(${backend})"]
+    C2["AI Inference Engine\\n(${ai})"]
+    C3["Analytics Worker\\n(Background Jobs)"]
+  end
+  subgraph DATA["🗄️ DATA LAYER"]
+    D1["Primary Database\\n(${db})"]
+    D2["Session Cache\\n(Redis)"]
+    D3["Vector Database\\n(Pinecone)"]
+  end
+  A1 & A2 --> B1 --> B2 --> C1
+  C1 --> C2 --> D3
+  C1 --> C3 --> D1 & D2
+  style C2 fill:#e11d48,color:#fff`;
 }
 
 module.exports = { generateBlueprint, generateMentorResponse };

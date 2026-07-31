@@ -27,7 +27,8 @@ const API_BASE = window.location.port === '5500' || window.location.protocol ===
         fontSize: '14px'
       },
       flowchart: { curve: 'basis', padding: 20 },
-      securityLevel: 'loose'
+      securityLevel: 'loose',
+      suppressErrorRendering: true
     });
     window.mermaidReady = true;
   };
@@ -264,12 +265,17 @@ function initialize() {
       return blueprint;
 
     } catch (err) {
-      // If server is not running, fall back to the static demo mode
-      if (err.message.includes('Failed to fetch') || err.message.includes('ERR_CONNECTION_REFUSED')) {
-        console.warn('[Frontend] Server not reachable — falling back to demo mode');
-        return null; // Will trigger demo mode below
+      // ONLY fall back to null (demo mode) if server is truly offline
+      // For all other errors (rate limit, API error), propagate to show real error message
+      const isOffline = err.message.includes('Failed to fetch') ||
+                        err.message.includes('ERR_CONNECTION_REFUSED') ||
+                        err.message.includes('NetworkError') ||
+                        err.message.includes('network error');
+      if (isOffline) {
+        console.warn('[Frontend] Server offline — falling back to demo mode');
+        return null;
       }
-      throw err;
+      throw err;  // Let simulateProcessing handle all other errors
     }
   }
 
@@ -279,14 +285,14 @@ function initialize() {
     progressBar.style.width = '0%';
 
     try {
-      // Try real AI first
       loaderText.textContent = 'Connecting to AI Copilot...';
       loaderSubText.textContent = 'Initializing RAG pipeline...';
 
       let bp = await fetchSSEBlueprint(query);
 
       if (!bp) {
-        // Server not reachable — use intelligent demo fallback
+        // Server is genuinely offline — use demo fallback
+        showToast('Server offline — showing demo preview.', 'warn');
         bp = await runDemoMode(query);
       }
 
@@ -301,13 +307,39 @@ function initialize() {
 
     } catch (err) {
       console.error('[Frontend] Processing error:', err.message);
-      // Show error toast then fall back to demo mode
-      showToast(`AI Error: ${err.message}. Using demo mode.`, 'warn');
 
-      const bp = await runDemoMode(query);
-      currentBlueprint = bp;
-      renderDashboard(bp);
-      showScreen('dashboard');
+      // Detect rate limit
+      const isRateLimit = err.message.includes('rate_limit') ||
+                          err.message.includes('429') ||
+                          err.message.includes('Too Many');
+
+      if (isRateLimit) {
+        showToast('⏳ AI rate limit reached. Waiting 20s then retrying automatically...', 'warn');
+        progressBar.style.width = '80%';
+        loaderText.textContent = 'Rate limit reached — retrying in 20s...';
+        await new Promise(r => setTimeout(r, 20000));
+        try {
+          const bp = await fetchSSEBlueprint(query);
+          if (bp) {
+            currentBlueprint = bp;
+            renderDashboard(bp);
+            showScreen('dashboard');
+            return;
+          }
+        } catch (retryErr) {
+          console.error('[Frontend] Retry also failed:', retryErr.message);
+        }
+      }
+
+      // All other errors — show clear message, do NOT silently go to demo
+      showToast(`❌ AI Error: ${err.message}`, 'error');
+      loaderText.textContent = '❌ Generation failed';
+      loaderSubText.textContent = err.message;
+      progressBar.style.width = '0%';
+
+      // Wait 3s then return to landing so user can retry
+      await new Promise(r => setTimeout(r, 3000));
+      showScreen('landing');
     }
   }
 
@@ -343,10 +375,11 @@ function initialize() {
         currentBlueprint = bp;
         renderDashboard(bp);
       } else {
-        renderDashboard(matchBlueprint(query));
+        throw new Error('No blueprint data received');
       }
     } catch (err) {
-      renderDashboard(matchBlueprint(query));
+      console.error('[Frontend] Regenerate error:', err);
+      showToast(`❌ Generation failed: ${err.message}`, 'error');
     }
 
     document.querySelectorAll('.sidebar .nav-item').forEach(n => n.classList.remove('active'));
@@ -370,12 +403,12 @@ function initialize() {
         { icon: "🗄️", title: "Database", stack: "PostgreSQL, Redis" }
       ],
       architectureMermaid: `graph TD
-  A["📱 React Native\\n(Mobile App)"] -->|GraphQL| B["⚙️ Node.js\\n(API Server)"]
-  B --> C["🧠 Prophet ML\\n(Forecast Engine)"]
-  B --> D["🗄️ PostgreSQL\\n(Database)"]
+  A["📱 React Native<br/>(Mobile App)"] -->|GraphQL| B["⚙️ Node.js<br/>(API Server)"]
+  B --> C["🧠 Prophet ML<br/>(Forecast Engine)"]
+  B --> D["🗄️ PostgreSQL<br/>(Database)"]
   C -->|Predictions| B
-  B --> E["📊 Dashboard\\n(Next.js)"]
-  D --> F["📈 Analytics\\n(Redis Cache)"]
+  B --> E["📊 Dashboard<br/>(Next.js)"]
+  D --> F["📈 Analytics<br/>(Redis Cache)"]
   style C fill:#e11d48,color:#fff`,
       deepSearchResults: [
         { type: "paper", title: "Food Waste Prediction Using ML in Institutional Canteens", source: "IEEE Xplore, 2024", desc: "LSTM-based model predicts daily food consumption with 89% accuracy.", url: "https://ieeexplore.ieee.org" },
@@ -416,11 +449,11 @@ function initialize() {
         { icon: "🗄️", title: "Database", stack: "MongoDB, S3" }
       ],
       architectureMermaid: `graph TD
-  A["📷 Camera\\n(OpenCV)"] -->|Frames| B["🧠 FaceNet\\n(Recognition)"]
-  B -->|Identity| C["⚙️ FastAPI\\n(Backend)"]
-  C --> D["🗄️ MongoDB\\n(Attendance DB)"]
-  C --> E["📊 Dashboard\\n(React)"]
-  D --> F["📤 Reports\\n(Export)"]
+  A["📷 Camera<br/>(OpenCV)"] -->|Frames| B["🧠 FaceNet<br/>(Recognition)"]
+  B -->|Identity| C["⚙️ FastAPI<br/>(Backend)"]
+  C --> D["🗄️ MongoDB<br/>(Attendance DB)"]
+  C --> E["📊 Dashboard<br/>(React)"]
+  D --> F["📤 Reports<br/>(Export)"]
   style B fill:#e11d48,color:#fff`,
       deepSearchResults: [
         { type: "paper", title: "Real-Time Face Recognition for Automated Attendance", source: "IEEE, 2024", desc: "Uses FaceNet embeddings with 98.7% accuracy on classroom datasets.", url: "https://ieeexplore.ieee.org" },
@@ -457,12 +490,12 @@ function initialize() {
         { icon: "🗄️", title: "Data Layer", stack: "TimescaleDB, S3" }
       ],
       architectureMermaid: `graph TD
-  A["💳 React Native\\n(Mobile App)"] -->|Plaid API| B["🏦 Bank\\nConnection"]
-  A -->|Secure REST| C["🔐 Actix-web\\n(Rust API)"]
-  C --> D["🧠 LSTM Model\\n(Predictions)"]
-  C --> E["🗄️ TimescaleDB\\n(Transactions)"]
+  A["💳 React Native<br/>(Mobile App)"] -->|Plaid API| B["🏦 Bank<br/>Connection"]
+  A -->|Secure REST| C["🔐 Actix-web<br/>(Rust API)"]
+  C --> D["🧠 LSTM Model<br/>(Predictions)"]
+  C --> E["🗄️ TimescaleDB<br/>(Transactions)"]
   D -->|Forecasts| C
-  C --> F["📊 Budget\\nDashboard"]
+  C --> F["📊 Budget<br/>Dashboard"]
   style D fill:#e11d48,color:#fff`,
       deepSearchResults: [
         { type: "paper", title: "LSTM Networks for Household Spending Prediction", source: "AAAI, 2024", desc: "Time-series model predicts monthly spending categories with 85% accuracy.", url: "https://aaai.org" },
@@ -496,9 +529,9 @@ function initialize() {
       stats: [{ val: "10M+", label: "Potential users impacted" }, { val: "3x", label: "Faster than manual approach" }],
       warning: "Manual workflows for this domain are inefficient, error-prone, and don't scale.",
       architectureMermaid: `graph TD
-  A["⚛️ React.js\\n(Frontend)"] -->|REST API| B["⚙️ Node.js\\n(Backend)"]
-  B --> C["🧠 LangChain\\n(AI Core)"]
-  B --> D["🗄️ PostgreSQL\\n(Database)"]
+  A["⚛️ React.js<br/>(Frontend)"] -->|REST API| B["⚙️ Node.js<br/>(Backend)"]
+  B --> C["🧠 LangChain<br/>(AI Core)"]
+  B --> D["🗄️ PostgreSQL<br/>(Database)"]
   C -->|Results| B
   D --> E["📊 Analytics"]
   style C fill:#e11d48,color:#fff`,
@@ -563,55 +596,55 @@ function initialize() {
     // Block 2: Idea Score Card
     if (bp.ideaScore) {
       const is = bp.ideaScore;
-      const scoreColor = (s) => s >= 75 ? '#22c55e' : s >= 50 ? '#f59e0b' : '#ef4444';
+      const scoreColor = (s) => s >= 75 ? '#16a34a' : s >= 50 ? '#d97706' : '#dc2626';
       overview.appendChild(createBlock('02. IDEA INTELLIGENCE SCORE', `
-        <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;">
-          <div style="flex:1;min-width:140px;background:#1a1a2e;border:1px solid #2a2a4a;border-radius:12px;padding:16px;text-align:center;">
-            <div style="font-size:2rem;font-weight:800;color:${scoreColor(is.innovationScore)}">${is.innovationScore}<span style="font-size:1rem;color:#888">/100</span></div>
-            <div style="color:#888;font-size:0.75rem;margin-top:4px;text-transform:uppercase;letter-spacing:1px;">Innovation</div>
-            <div style="margin-top:8px;height:4px;background:#2a2a4a;border-radius:2px;"><div style="width:${is.innovationScore}%;height:100%;background:${scoreColor(is.innovationScore)};border-radius:2px;"></div></div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
+          <div style="flex:1;min-width:130px;background:#fafafa;border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;">
+            <div style="font-size:2rem;font-weight:800;color:${scoreColor(is.innovationScore)}">${is.innovationScore}<span style="font-size:1rem;color:#999">/100</span></div>
+            <div style="color:#999;font-size:0.75rem;margin-top:4px;text-transform:uppercase;letter-spacing:1px;">Innovation</div>
+            <div style="margin-top:8px;height:4px;background:#e5e7eb;border-radius:2px;"><div style="width:${is.innovationScore}%;height:100%;background:${scoreColor(is.innovationScore)};border-radius:2px;"></div></div>
           </div>
-          <div style="flex:1;min-width:140px;background:#1a1a2e;border:1px solid #2a2a4a;border-radius:12px;padding:16px;text-align:center;">
-            <div style="font-size:2rem;font-weight:800;color:${scoreColor(is.complexityScore)}">${is.complexityScore}<span style="font-size:1rem;color:#888">/100</span></div>
-            <div style="color:#888;font-size:0.75rem;margin-top:4px;text-transform:uppercase;letter-spacing:1px;">Complexity</div>
-            <div style="margin-top:8px;height:4px;background:#2a2a4a;border-radius:2px;"><div style="width:${is.complexityScore}%;height:100%;background:${scoreColor(is.complexityScore)};border-radius:2px;"></div></div>
+          <div style="flex:1;min-width:130px;background:#fafafa;border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;">
+            <div style="font-size:2rem;font-weight:800;color:${scoreColor(is.complexityScore)}">${is.complexityScore}<span style="font-size:1rem;color:#999">/100</span></div>
+            <div style="color:#999;font-size:0.75rem;margin-top:4px;text-transform:uppercase;letter-spacing:1px;">Complexity</div>
+            <div style="margin-top:8px;height:4px;background:#e5e7eb;border-radius:2px;"><div style="width:${is.complexityScore}%;height:100%;background:${scoreColor(is.complexityScore)};border-radius:2px;"></div></div>
           </div>
-          <div style="flex:1;min-width:140px;background:#1a1a2e;border:1px solid #2a2a4a;border-radius:12px;padding:16px;text-align:center;">
-            <div style="font-size:2rem;font-weight:800;color:${scoreColor(is.marketScore)}">${is.marketScore}<span style="font-size:1rem;color:#888">/100</span></div>
-            <div style="color:#888;font-size:0.75rem;margin-top:4px;text-transform:uppercase;letter-spacing:1px;">Market</div>
-            <div style="margin-top:8px;height:4px;background:#2a2a4a;border-radius:2px;"><div style="width:${is.marketScore}%;height:100%;background:${scoreColor(is.marketScore)};border-radius:2px;"></div></div>
+          <div style="flex:1;min-width:130px;background:#fafafa;border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;">
+            <div style="font-size:2rem;font-weight:800;color:${scoreColor(is.marketScore)}">${is.marketScore}<span style="font-size:1rem;color:#999">/100</span></div>
+            <div style="color:#999;font-size:0.75rem;margin-top:4px;text-transform:uppercase;letter-spacing:1px;">Market</div>
+            <div style="margin-top:8px;height:4px;background:#e5e7eb;border-radius:2px;"><div style="width:${is.marketScore}%;height:100%;background:${scoreColor(is.marketScore)};border-radius:2px;"></div></div>
           </div>
-          <div style="flex:1;min-width:140px;background:linear-gradient(135deg,#e11d48,#7c3aed);border-radius:12px;padding:16px;text-align:center;">
+          <div style="flex:1;min-width:130px;background:linear-gradient(135deg,#e11d48,#be123c);border-radius:12px;padding:16px;text-align:center;">
             <div style="font-size:2rem;font-weight:800;color:#fff">${is.overallScore}<span style="font-size:1rem;color:rgba(255,255,255,0.7)">/100</span></div>
-            <div style="color:rgba(255,255,255,0.8);font-size:0.75rem;margin-top:4px;text-transform:uppercase;letter-spacing:1px;">Overall Score</div>
-            <div style="margin-top:8px;height:4px;background:rgba(255,255,255,0.2);border-radius:2px;"><div style="width:${is.overallScore}%;height:100%;background:#fff;border-radius:2px;"></div></div>
+            <div style="color:rgba(255,255,255,0.85);font-size:0.75rem;margin-top:4px;text-transform:uppercase;letter-spacing:1px;">Overall Score</div>
+            <div style="margin-top:8px;height:4px;background:rgba(255,255,255,0.25);border-radius:2px;"><div style="width:${is.overallScore}%;height:100%;background:#fff;border-radius:2px;"></div></div>
           </div>
         </div>
-        <div style="background:#1a1a2e;border:1px solid #e11d48;border-radius:10px;padding:14px;margin-bottom:12px;">
+        <div style="background:#fff5f7;border:1px solid rgba(225,29,72,0.25);border-radius:10px;padding:14px;margin-bottom:12px;">
           <div style="color:#e11d48;font-size:0.7rem;font-weight:700;letter-spacing:1px;margin-bottom:6px;">VERDICT</div>
-          <div style="color:#f1f5f9;font-size:0.9rem;">${escapeHtml(is.verdict || '')}</div>
+          <div style="color:#111827;font-size:0.9rem;line-height:1.55;">${escapeHtml(is.verdict || '')}</div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          <div style="background:#0f0f1a;border:1px solid #2a2a4a;border-radius:8px;padding:12px;">
-            <div style="color:#888;font-size:0.7rem;font-weight:700;letter-spacing:1px;margin-bottom:6px;">INNOVATION ANALYSIS</div>
-            <div style="color:#cbd5e1;font-size:0.82rem;">${escapeHtml(is.innovationReason || '')}</div>
+          <div style="background:#fafafa;border:1px solid var(--border);border-radius:8px;padding:12px;">
+            <div style="color:#6b7280;font-size:0.7rem;font-weight:700;letter-spacing:1px;margin-bottom:6px;">INNOVATION ANALYSIS</div>
+            <div style="color:#374151;font-size:0.82rem;line-height:1.5;">${escapeHtml(is.innovationReason || '')}</div>
           </div>
-          <div style="background:#0f0f1a;border:1px solid #2a2a4a;border-radius:8px;padding:12px;">
-            <div style="color:#888;font-size:0.7rem;font-weight:700;letter-spacing:1px;margin-bottom:6px;">MARKET ANALYSIS</div>
-            <div style="color:#cbd5e1;font-size:0.82rem;">${escapeHtml(is.marketReason || '')}</div>
+          <div style="background:#fafafa;border:1px solid var(--border);border-radius:8px;padding:12px;">
+            <div style="color:#6b7280;font-size:0.7rem;font-weight:700;letter-spacing:1px;margin-bottom:6px;">MARKET ANALYSIS</div>
+            <div style="color:#374151;font-size:0.82rem;line-height:1.5;">${escapeHtml(is.marketReason || '')}</div>
           </div>
         </div>
         ${is.similarProjects && is.similarProjects.length > 0 ? `
         <div style="margin-top:12px;">
-          <div style="color:#888;font-size:0.7rem;font-weight:700;letter-spacing:1px;margin-bottom:8px;">COMPETING SOLUTIONS</div>
+          <div style="color:#6b7280;font-size:0.7rem;font-weight:700;letter-spacing:1px;margin-bottom:8px;">COMPETING SOLUTIONS</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            ${is.similarProjects.map(p => `<span style="background:#1e1e3a;border:1px solid #3a3a5a;border-radius:20px;padding:4px 12px;color:#a78bfa;font-size:0.8rem;">${escapeHtml(p)}</span>`).join('')}
+            ${is.similarProjects.map(p => `<span style="background:rgba(225,29,72,0.07);border:1px solid rgba(225,29,72,0.2);border-radius:20px;padding:4px 12px;color:#be123c;font-size:0.8rem;">${escapeHtml(p)}</span>`).join('')}
           </div>
         </div>` : ''}
         ${is.keyDifferentiator ? `
-        <div style="margin-top:12px;background:#0f2a1a;border:1px solid #22c55e;border-radius:8px;padding:12px;">
-          <div style="color:#22c55e;font-size:0.7rem;font-weight:700;letter-spacing:1px;margin-bottom:6px;">OUR DIFFERENTIATOR</div>
-          <div style="color:#cbd5e1;font-size:0.82rem;">${escapeHtml(is.keyDifferentiator)}</div>
+        <div style="margin-top:12px;background:#f0fdf4;border:1px solid rgba(22,163,74,0.25);border-radius:8px;padding:12px;">
+          <div style="color:#16a34a;font-size:0.7rem;font-weight:700;letter-spacing:1px;margin-bottom:6px;">OUR DIFFERENTIATOR</div>
+          <div style="color:#374151;font-size:0.82rem;line-height:1.5;">${escapeHtml(is.keyDifferentiator)}</div>
         </div>` : ''}
       `, '0.15s'));
     }
@@ -667,19 +700,21 @@ function initialize() {
     }
 
 
-    // ── Tab: DeepSearch ──
     const dsTab = el('div', 'tab-panel', 'tabDeepsearch');
     dsTab.appendChild(createBlock('DEEPSEARCH RAG RESULTS', `
       <div class="search-results">
-        ${(bp.deepSearchResults || []).map(r => `
+        ${(bp.deepSearchResults || []).map(r => {
+          const targetUrl = r.url && r.url.trim() !== '' ? r.url : 'https://www.google.com/search?q=' + encodeURIComponent(r.title);
+          return `
           <div class="search-result-item">
             <span class="result-type ${r.type}">${r.type.toUpperCase()}</span>
             <div class="result-info">
-              <h4>${r.url ? `<a href="${escapeHtml(r.url)}" target="_blank" rel="noopener">${escapeHtml(r.title)}</a>` : escapeHtml(r.title)}</h4>
+              <h4><a href="${escapeHtml(targetUrl)}" target="_blank" rel="noopener">${escapeHtml(r.title)}</a></h4>
               <p>${escapeHtml(r.source)} — ${escapeHtml(r.desc)}</p>
             </div>
           </div>
-        `).join('')}
+          `;
+        }).join('')}
         ${(bp.deepSearchResults || []).length === 0 ? '<p style="color:#888;padding:16px;">Run a query to see real research results from arXiv, IEEE, and GitHub.</p>' : ''}
       </div>
     `));
@@ -756,7 +791,22 @@ function initialize() {
   }
 
   // ── Mermaid Diagram Renderer ────────────────────────────────────────────
-  async function renderMermaidDiagram(code, containerId = 'mermaidDiagram') {
+  // ── Guaranteed-valid fallback diagram ────────────────────────────────────
+  function getDefaultDiagram(bp) {
+    const fe  = (bp?.techStack?.frontend?.[0]  || 'React').replace(/["]/g,'');
+    const be  = (bp?.techStack?.backend?.[0]   || 'Node.js').replace(/["]/g,'');
+    const db  = (bp?.techStack?.database?.[0]  || 'PostgreSQL').replace(/["]/g,'');
+    const ai  = (bp?.techStack?.aiMl?.[0]      || 'Python AI').replace(/["]/g,'');
+    return `graph TD
+    A["🖥️ Frontend<br/>${fe}"] --> B["🔌 API Gateway"]
+    B --> C["⚙️ Backend<br/>${be}"]
+    C --> D["🧠 AI Engine<br/>${ai}"]
+    C --> E["🗄️ Database<br/>${db}"]
+    D --> E
+    style D fill:#e11d48,color:#fff`;
+  }
+
+  async function renderMermaidDiagram(code, containerId = 'mermaidDiagram', bp = null) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
@@ -776,19 +826,38 @@ function initialize() {
       container.removeAttribute('data-processed');
       container.className = 'mermaid';
 
-      // Strip markdown fences if present
-      let safeCode = code.replace(/```mermaid\n?/, '').replace(/```$/, '').trim();
+      // Use deterministic code
+      let rendered = false;
 
-      const { svg } = await mermaid.render('arch-diagram-' + containerId + '-' + Date.now(), safeCode);
-      container.innerHTML = svg;
-      container.className = 'mermaid-rendered';
+      try {
+        const cleanCode = code.replace(/```mermaid\n?/g, '').replace(/```/g, '').trim();
+        const { svg } = await mermaid.render('arch-' + containerId + '-' + Date.now(), cleanCode);
+        container.innerHTML = svg;
+        container.className = 'mermaid-rendered';
+        rendered = true;
+      } catch (e1) {
+        console.warn('[Mermaid] Render failed, using fallback diagram:', e1.message);
+        // Clean up error SVGs injected by Mermaid into the DOM
+        document.querySelectorAll('svg[id^="d-arch-"]').forEach(el => el.remove());
+      }
+
+      // If still fails, use guaranteed-valid fallback
+      if (!rendered) {
+        const fallback = getDefaultDiagram(currentBlueprint);
+        try {
+          const { svg } = await mermaid.render('arch-fallback-' + Date.now(), fallback);
+          container.innerHTML = svg + '<p style="text-align:center;color:#999;font-size:0.75rem;margin-top:8px;">⚠️ Using simplified diagram</p>';
+          container.className = 'mermaid-rendered';
+        } catch (e2) {
+          // Clean up error SVGs injected by Mermaid into the DOM
+          document.querySelectorAll('svg[id^="d-arch-"]').forEach(el => el.remove());
+          // Last resort: plain text
+          container.innerHTML = `<p style="color:#888;padding:16px;text-align:center;">Architecture diagram unavailable. Use AI Mentor to regenerate.</p>`;
+        }
+      }
     } catch (err) {
       console.warn('[Mermaid] Render error:', err.message);
-      container.innerHTML = `<div style="padding:2rem;color:#ff4444;text-align:center;border:1px dashed #ffb3b3;border-radius:8px;margin:1rem 0;background:#fff5f5;">
-        <h4 style="margin:0 0 0.5rem 0;color:#d32f2f;">Diagram Generation Failed</h4>
-        <p style="font-size:0.9rem;color:#666;margin:0 0 1rem 0;">The AI generated invalid flowchart syntax. You can ask the AI Mentor to redraw the diagram.</p>
-        <pre style="text-align:left;background:#222;color:#0f0;padding:1rem;border-radius:4px;font-size:11px;overflow-x:auto;">${escapeHtml(code)}</pre>
-      </div>`;
+      container.innerHTML = `<p style="color:#888;padding:16px;text-align:center;">Architecture diagram unavailable. Use AI Mentor to regenerate.</p>`;
     }
   }
 
@@ -907,7 +976,7 @@ function initialize() {
           <p style="font-size:11px;color:#888;margin:6px 0 0;">Need a token? <a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank" style="color:#e11d48;">Create one here</a> (requires <code>repo</code> scope)</p>
         </div>
 
-        <div style="margin-bottom:24px;display:flex;gap:16px;">
+        <div class="stats-row" style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:24px;">
           <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
             <input type="checkbox" id="modalPrivate" checked> Private repository
           </label>
