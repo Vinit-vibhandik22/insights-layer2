@@ -428,3 +428,416 @@ body {
     text-decoration:none;
     font-weight:600;
 }
+
+/* ── Export PDF Button ── */
+.export-pdf-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: #0a0a0a;
+    color: #fff;
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: var(--font);
+}
+.export-pdf-btn:hover {
+    background: #222;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.export-pdf-btn svg {
+    color: inherit;
+}
+
+/* ── Competitor Comparison Table ── */
+.competitors-table-wrapper {
+    overflow-x: auto;
+    margin: 16px 0;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+}
+.competitors-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.88rem;
+}
+.competitors-table th {
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 600;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+}
+.competitors-table td {
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--border);
+    color: #334155;
+    line-height: 1.5;
+}
+.competitors-table tr:last-child td {
+    border-bottom: none;
+}
+.competitors-table tr:nth-child(even) td {
+    background: #fafafa;
+}
+.competitors-table td.highlight-col {
+    background: rgba(225,29,72,0.02);
+    border-left: 2px solid var(--primary);
+    border-right: 2px solid var(--primary);
+    font-weight: 500;
+}
+.competitors-table tr:first-child td.highlight-col {
+    border-top: 2px solid var(--primary);
+}
+.competitors-table tr:last-child td.highlight-col {
+    border-bottom: 2px solid var(--primary);
+}
+
+/* ── Whitespace / Innovation Opportunities ── */
+.whitespace-opportunity-card {
+    background: linear-gradient(135deg, rgba(225,29,72,0.03) 0%, rgba(124,58,237,0.03) 100%);
+    border: 1px dashed var(--primary);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    margin-top: 12px;
+}
+.whitespace-opportunity-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(225,29,72,0.05) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+}
+.whitespace-opportunity-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    color: var(--primary);
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+    z-index: 1;
+}
+.whitespace-opportunity-body {
+    color: #1e293b;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    position: relative;
+    z-index: 1;
+}
+
+/* ── GitHub Repos Proper Listing ── */
+.github-repo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 14px;
+}
+.github-repo-card {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+}
+.github-repo-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(225,29,72,0.05);
+}
+.github-repo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+.github-repo-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #0f172a;
+    text-decoration: none;
+    line-height: 1.4;
+    word-break: break-all;
+}
+.github-repo-title:hover {
+    color: var(--primary);
+    text-decoration: underline;
+}
+.github-star-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #fef3c7;
+    color: #d97706;
+    border: 1px solid #fde68a;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+.github-repo-desc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 14px;
+    flex-grow: 1;
+}
+.github-repo-footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.75rem;
+    color: #64748b;
+}
+.github-repo-lang {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.github-lang-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #be123c;
+}
+
+/* ── APIs & Datasets Block ── */
+.apis-block-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+}
+.api-tag-card {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s;
+}
+.api-tag-card:hover {
+    background: #f1f5f9;
+    border-color: var(--border-hi);
+}
+.api-icon {
+    font-size: 1.25rem;
+    width: 32px;
+    height: 32px;
+    background: rgba(225,29,72,0.06);
+    border: 1px solid rgba(225,29,72,0.1);
+    color: var(--primary);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.api-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.api-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+.api-purpose {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* ── Gantt-Style Implementation Timeline ── */
+.timeline-gantt-wrapper {
+    margin: 16px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+.gantt-header-row {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+.gantt-header-label {
+    width: 25%;
+    padding-right: 12px;
+}
+.gantt-header-weeks {
+    width: 75%;
+    display: flex;
+    justify-content: space-between;
+}
+.gantt-header-week {
+    flex: 1;
+    text-align: center;
+    border-left: 1px dashed var(--border);
+}
+.gantt-task-row {
+    display: flex;
+    align-items: center;
+}
+.gantt-task-label {
+    width: 25%;
+    padding-right: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.gantt-task-name {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #0f172a;
+}
+.gantt-task-desc {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+.gantt-task-track {
+    width: 75%;
+    height: 36px;
+    background: #f8fafc;
+    border-radius: 8px;
+    position: relative;
+    border: 1px solid rgba(0,0,0,0.03);
+    overflow: hidden;
+}
+.gantt-grid-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    border-left: 1px dashed rgba(0,0,0,0.05);
+}
+.gantt-bar {
+    position: absolute;
+    top: 6px;
+    bottom: 6px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(225,29,72,0.15);
+    background: linear-gradient(90deg, var(--primary), #be123c);
+}
+.gantt-bar.done {
+    background: linear-gradient(90deg, #16a34a, #15803d);
+    box-shadow: 0 2px 6px rgba(22,163,74,0.15);
+}
+.gantt-milestones-row {
+    margin-top: 10px;
+    padding-left: 25%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.gantt-milestone-tag {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 3px 8px;
+    font-size: 0.75rem;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.gantt-milestone-tag::before {
+    content: '◆';
+    color: var(--primary);
+    font-size: 0.7rem;
+}
+.gantt-milestone-tag.done::before {
+    color: #16a34a;
+}
+
+/* ── Print Media Queries ── */
+@media print {
+    body {
+        background: #ffffff !important;
+        color: #000000 !important;
+    }
+    .top-nav, .sidebar, .refine-bar, .export-pdf-btn, .sidebar-bottom, .sidebar-header {
+        display: none !important;
+    }
+    .dashboard-layout {
+        display: block !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+    .dashboard-main {
+        display: block !important;
+        width: 100% !important;
+        overflow: visible !important;
+        background: transparent !important;
+    }
+    .dashboard-main::before {
+        display: none !important;
+    }
+    .canvas {
+        padding: 0 !important;
+        overflow: visible !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 30px !important;
+    }
+    .tab-panel {
+        display: flex !important; /* Force render all active structures when printing */
+        opacity: 1 !important;
+    }
+    .figma-block {
+        box-shadow: none !important;
+        border: 1px solid #cccccc !important;
+        page-break-inside: avoid !important;
+        margin-bottom: 20px !important;
+        background: #ffffff !important;
+    }
+    .text-gradient {
+        background: none !important;
+        -webkit-text-fill-color: initial !important;
+        color: #be123c !important;
+        font-weight: bold;
+    }
+    .gantt-task-track {
+        background: #ffffff !important;
+        border: 1px solid #cccccc !important;
+    }
+    .gantt-bar {
+        border: 1px solid #000000 !important;
+        color: #000000 !important;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+}
