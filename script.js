@@ -3,8 +3,8 @@
 // Connects to Express backend at /api/* instead of using fake setTimeout loops
 // ═══════════════════════════════════════════════════════════════════════════
 
-const API_BASE = window.location.port === '5500' || window.location.protocol === 'file:' 
-  ? 'http://localhost:3000' 
+const API_BASE = window.location.port === '5500' || window.location.protocol === 'file:'
+  ? 'http://localhost:3000'
   : window.location.origin; // Same-origin — served by Express
 
 // ── Mermaid.js Loader ──────────────────────────────────────────────────────
@@ -185,19 +185,19 @@ function initialize() {
     let blueprint = null;
 
     try {
-        let clerkToken = null;
-        if (window.Clerk && window.Clerk.session) {
-          clerkToken = await window.Clerk.session.getToken();
-        }
-        
-        const headers = { 'Content-Type': 'application/json' };
-        if (clerkToken) headers['Authorization'] = `Bearer ${clerkToken}`;
+      let clerkToken = null;
+      if (window.Clerk && window.Clerk.session) {
+        clerkToken = await window.Clerk.session.getToken();
+      }
 
-        const response = await fetch(`${API_BASE}/api/generate-blueprint`, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({ query })
-        });
+      const headers = { 'Content-Type': 'application/json' };
+      if (clerkToken) headers['Authorization'] = `Bearer ${clerkToken}`;
+
+      const response = await fetch(`${API_BASE}/api/generate-blueprint`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ query })
+      });
 
       if (!response.ok) {
         const err = await response.json();
@@ -397,20 +397,10 @@ function initialize() {
         { status: "critical", lib: "node-fetch 2.x", detail: "CVE-2022-0235: Header leak vulnerability.", badge: "CVE FOUND" }
       ],
       sprints: [
-        { week: "W1", title: "Infrastructure", desc: "DB Schema, Backend API, Auth System", done: true, milestones: ["Setup PostgreSQL and Prisma schemas", "Configure Express server", "Add JWT auth route endpoints"] },
-        { week: "W2", title: "Meal Booking UI", desc: "Mobile App with Booking Module", done: false, milestones: ["Scaffold React Native UI", "Integrate meal selection calendar", "Establish backend API sync logs"] },
-        { week: "W3", title: "AI Pipeline", desc: "Prophet Model Training & Validation", done: false, milestones: ["Train Prophet ML model with sample data", "Set up daily batch training cron", "Connect forecasting API route"] },
-        { week: "W4", title: "Deployment", desc: "Integration, Testing & Go-Live", done: false, milestones: ["Conduct integration stress testing", "Deploy API gateway to Render", "Configure mobile app production build"] }
-      ],
-      external_apis: [
-        "Spoonacular API (meal options & recipes)",
-        "USDA FoodData Central API (nutrition metadata)",
-        "Clerk Auth API (student credentials & profiles)"
-      ],
-      competitiveAnalysis: [
-        { competitor: "Manual Mess Registers", approach: "Paper-based tracking at canteen exit counter", ourAdvantage: "Predictive booking reduces food prep waste by 40% before cooking starts." },
-        { competitor: "Zomato / Swiggy Canteens", "approach": "Commercial food ordering platforms with fixed stock", ourAdvantage: "Deep integration with college schedules to adjust inventory in real time." },
-        { competitor: "Generic Inventory Software", "approach": "Simple barcode scanning of raw ingredients", ourAdvantage: "AI-driven demand forecasting based on student eating patterns." }
+        { week: "W1", title: "Infrastructure", desc: "DB Schema, Backend API, Auth System", done: true },
+        { week: "W2", title: "Meal Booking UI", desc: "Mobile App with Booking Module", done: false },
+        { week: "W3", title: "AI Pipeline", desc: "Prophet Model Training & Validation", done: false },
+        { week: "W4", title: "Deployment", desc: "Integration, Testing & Go-Live", done: false }
       ],
       githubIssues: []
     },
@@ -430,7 +420,7 @@ function initialize() {
   B -->|Identity| C["⚙️ FastAPI\\n(Backend)"]
   C --> D["🗄️ MongoDB\\n(Attendance DB)"]
   C --> E["📊 Dashboard\\n(React)"]
-  C --> F["📤 Reports\\n(Export)"]
+  D --> F["📤 Reports\\n(Export)"]
   style B fill:#e11d48,color:#fff`,
       deepSearchResults: [
         { type: "paper", title: "Real-Time Face Recognition for Automated Attendance", source: "IEEE, 2024", desc: "Uses FaceNet embeddings with 98.7% accuracy on classroom datasets.", url: "https://ieeexplore.ieee.org" },
@@ -448,20 +438,10 @@ function initialize() {
         { status: "warn", lib: "Pillow 9.x", detail: "CVE-2023-44271: DoS via large images. Upgrade to 10.x.", badge: "UPGRADE" }
       ],
       sprints: [
-        { week: "W1", title: "Data Collection", desc: "Face dataset capture & preprocessing", done: true, milestones: ["Capture baseline student dataset images", "Design data preprocessor pipeline", "Upload assets to Amazon S3 buckets"] },
-        { week: "W2", title: "Model Training", desc: "FaceNet embeddings & classifier", done: false, milestones: ["Compute FaceNet 128-d embeddings", "Train SVM classifier model on faces", "Validate accuracy rate metric metrics"] },
-        { week: "W3", title: "Integration", desc: "Camera + Backend + Dashboard", done: false, milestones: ["Connect Pi Camera stream with OpenCV", "Establish socket connection to FastAPI", "Scaffold React attendance dashboard"] },
-        { week: "W4", title: "Anti-Spoof & Deploy", desc: "Liveness detection & production", done: false, milestones: ["Add blink classification check algorithm", "Conduct end-to-end integration test", "Deploy system pipeline to AWS"] }
-      ],
-      external_apis: [
-        "AWS Rekognition API (face analysis & detection)",
-        "Twilio SMS API (parent/guardian notifications)",
-        "Canvas LMS API (attendance synchronization)"
-      ],
-      competitiveAnalysis: [
-        { competitor: "Manual Roll Calls", approach: "Teacher calls names one by one at start of lecture", ourAdvantage: "Saves 15 minutes per lecture, completely eliminating attendance fraud." },
-        { competitor: "RFID / NFC Card Swiping", approach: "Students tap cards at the door scanner", ourAdvantage: "Prevents proxy card tapping through blink-based liveness verification." },
-        { competitor: "Fingerprint Biometrics", approach: "Dedicated fingerprint scanners at entrance", ourAdvantage: "Touchless face scan speeds up throughput by 5x, reducing entry queues." }
+        { week: "W1", title: "Data Collection", desc: "Face dataset capture & preprocessing", done: true },
+        { week: "W2", title: "Model Training", desc: "FaceNet embeddings & classifier", done: false },
+        { week: "W3", title: "Integration", desc: "Camera + Backend + Dashboard", done: false },
+        { week: "W4", title: "Anti-Spoof & Deploy", desc: "Liveness detection & production", done: false }
       ],
       githubIssues: []
     },
@@ -500,20 +480,10 @@ function initialize() {
         { status: "safe", lib: "React Native 0.74", detail: "Latest stable.", badge: "UP TO DATE" }
       ],
       sprints: [
-        { week: "W1", title: "Banking Integration", desc: "Plaid API & Transaction Sync", done: true, milestones: ["Connect Plaid API sandbox link", "Configure transaction sync webhooks", "Create secure user database schemas"] },
-        { week: "W2", title: "Dashboard UI", desc: "Spending Charts & Budget Setup", done: false, milestones: ["Build React Native budget setup flow", "Render monthly spending category charts", "Connect transaction feed backend route"] },
-        { week: "W3", title: "Prediction Model", desc: "Train LSTM on Transaction History", done: false, milestones: ["Collect dataset of financial receipts", "Train LSTM model for expense category tag", "Establish forecast endpoints in FastAPI"] },
-        { week: "W4", title: "Alerts & Deploy", desc: "Smart Notifications & App Store", done: false, milestones: ["Implement Twilio automated SMS triggers", "Conduct security penetration audit scan", "Publish App Store/Google Play builds"] }
-      ],
-      external_apis: [
-        "Plaid Link API (bank integrations & oauth)",
-        "Twilio SendGrid API (monthly PDF statements)",
-        "Alpha Vantage API (stock/market index data)"
-      ],
-      competitiveAnalysis: [
-        { competitor: "YNAB (You Need A Budget)", approach: "Manual transaction logging with user-allocated budgets", ourAdvantage: "Automated categorization and predictive budgeting using LSTM." },
-        { competitor: "Splitwise", approach: "Shared expense logging and debt tracking", ourAdvantage: "Automates split recommendations based on group spending patterns." },
-        { competitor: "Mint (Deprecated)", approach: "Basic aggregation of historical transaction data", ourAdvantage: "Proactive alerts on anomaly spending spikes before budget is exceeded." }
+        { week: "W1", title: "Banking Integration", desc: "Plaid API & Transaction Sync", done: true },
+        { week: "W2", title: "Dashboard UI", desc: "Spending Charts & Budget Setup", done: false },
+        { week: "W3", title: "Prediction Model", desc: "Train LSTM on Transaction History", done: false },
+        { week: "W4", title: "Alerts & Deploy", desc: "Smart Notifications & App Store", done: false }
       ],
       githubIssues: []
     }
@@ -539,8 +509,8 @@ function initialize() {
         { icon: "🗄️", title: "Database", stack: "PostgreSQL, Pinecone" }
       ],
       deepSearchResults: [
-        { type: "paper", title: `Research Survey on ${short}`, source: "IEEE Xplore, 2024", desc: "Comprehensive survey of existing approaches and their limitations.", url: "" },
-        { type: "github", title: `open-source-${query.split(' ')[0].toLowerCase()}-reference (★ 520)`, source: "GitHub", desc: "Community-maintained reference implementation with MIT license.", url: "" },
+        { type: "paper", title: `Research Survey: ${short}`, source: "IEEE Xplore, 2024", desc: "Comprehensive survey of existing approaches and their limitations.", url: "" },
+        { type: "github", title: `open-source-${query.split(' ')[0].toLowerCase()} (★ 520)`, source: "GitHub", desc: "Community-maintained reference implementation with MIT license.", url: "" },
         { type: "paper", title: `Deep Learning Approaches for ${query.split(' ').slice(0, 4).join(' ')}`, source: "arXiv, 2023", desc: "Novel neural architecture achieving state-of-the-art results.", url: "" }
       ],
       mentorChat: [
@@ -554,19 +524,10 @@ function initialize() {
         { status: "warn", lib: "axios 0.27", detail: "Deprecated. Migrate to 1.x for security patches.", badge: "MIGRATE" }
       ],
       sprints: [
-        { week: "W1", title: "Foundation", desc: "Database Schema & API Scaffolding", done: true, milestones: ["Design schema relational diagrams", "Configure local monorepo config files", "Implement core Auth endpoints"] },
-        { week: "W2", title: "Core Features", desc: "Primary UI & Business Logic", done: false, milestones: ["Scaffold primary web layouts", "Connect dynamic dashboard widgets", "Establish backend CRUD server routes"] },
-        { week: "W3", title: "AI Integration", desc: "Model Training & Pipeline", done: false, milestones: ["Set up training notebooks scripts", "Integrate LangChain retrieval chains", "Test model response accuracy speeds"] },
-        { week: "W4", title: "Polish & Deploy", desc: "Testing, CI/CD & Launch", done: false, milestones: ["Run Jest backend test script suites", "Build automated GitHub Actions rules", "Deploy code to cloud hosting services"] }
-      ],
-      external_apis: [
-        "Stripe API (billing & payment setup)",
-        "SendGrid API (email dispatch triggers)",
-        "Pinecone Vector API (RAG database queries)"
-      ],
-      competitiveAnalysis: [
-        { competitor: "Traditional Manual Systems", approach: "Spreadsheets, emails, and manual record-keeping", ourAdvantage: "End-to-end automation with real-time analytics and predictive intelligence." },
-        { competitor: "Off-the-shelf SaaS Solutions", approach: "Generic dashboards with rigid configuration models", ourAdvantage: "Fully customized workflow specifically optimized for this domain." }
+        { week: "W1", title: "Foundation", desc: "Database Schema & API Scaffolding", done: true },
+        { week: "W2", title: "Core Features", desc: "Primary UI & Business Logic", done: false },
+        { week: "W3", title: "AI Integration", desc: "Model Training & Pipeline", done: false },
+        { week: "W4", title: "Polish & Deploy", desc: "Testing, CI/CD & Launch", done: false }
       ],
       githubIssues: []
     };
@@ -604,21 +565,21 @@ function initialize() {
       const is = bp.ideaScore;
       const scoreColor = (s) => s >= 75 ? '#22c55e' : s >= 50 ? '#f59e0b' : '#ef4444';
       overview.appendChild(createBlock('02. IDEA INTELLIGENCE SCORE', `
-         <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;">
-          <div style="flex:1;min-width:140px;background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;">
+        <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;">
+          <div style="flex:1;min-width:140px;background:#1a1a2e;border:1px solid #2a2a4a;border-radius:12px;padding:16px;text-align:center;">
             <div style="font-size:2rem;font-weight:800;color:${scoreColor(is.innovationScore)}">${is.innovationScore}<span style="font-size:1rem;color:#888">/100</span></div>
             <div style="color:#888;font-size:0.75rem;margin-top:4px;text-transform:uppercase;letter-spacing:1px;">Innovation</div>
-            <div style="margin-top:8px;height:4px;background:#e2e8f0;border-radius:2px;"><div style="width:${is.innovationScore}%;height:100%;background:${scoreColor(is.innovationScore)};border-radius:2px;"></div></div>
+            <div style="margin-top:8px;height:4px;background:#2a2a4a;border-radius:2px;"><div style="width:${is.innovationScore}%;height:100%;background:${scoreColor(is.innovationScore)};border-radius:2px;"></div></div>
           </div>
-          <div style="flex:1;min-width:140px;background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;">
+          <div style="flex:1;min-width:140px;background:#1a1a2e;border:1px solid #2a2a4a;border-radius:12px;padding:16px;text-align:center;">
             <div style="font-size:2rem;font-weight:800;color:${scoreColor(is.complexityScore)}">${is.complexityScore}<span style="font-size:1rem;color:#888">/100</span></div>
             <div style="color:#888;font-size:0.75rem;margin-top:4px;text-transform:uppercase;letter-spacing:1px;">Complexity</div>
-            <div style="margin-top:8px;height:4px;background:#e2e8f0;border-radius:2px;"><div style="width:${is.complexityScore}%;height:100%;background:${scoreColor(is.complexityScore)};border-radius:2px;"></div></div>
+            <div style="margin-top:8px;height:4px;background:#2a2a4a;border-radius:2px;"><div style="width:${is.complexityScore}%;height:100%;background:${scoreColor(is.complexityScore)};border-radius:2px;"></div></div>
           </div>
-          <div style="flex:1;min-width:140px;background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;">
+          <div style="flex:1;min-width:140px;background:#1a1a2e;border:1px solid #2a2a4a;border-radius:12px;padding:16px;text-align:center;">
             <div style="font-size:2rem;font-weight:800;color:${scoreColor(is.marketScore)}">${is.marketScore}<span style="font-size:1rem;color:#888">/100</span></div>
             <div style="color:#888;font-size:0.75rem;margin-top:4px;text-transform:uppercase;letter-spacing:1px;">Market</div>
-            <div style="margin-top:8px;height:4px;background:#e2e8f0;border-radius:2px;"><div style="width:${is.marketScore}%;height:100%;background:${scoreColor(is.marketScore)};border-radius:2px;"></div></div>
+            <div style="margin-top:8px;height:4px;background:#2a2a4a;border-radius:2px;"><div style="width:${is.marketScore}%;height:100%;background:${scoreColor(is.marketScore)};border-radius:2px;"></div></div>
           </div>
           <div style="flex:1;min-width:140px;background:linear-gradient(135deg,#e11d48,#7c3aed);border-radius:12px;padding:16px;text-align:center;">
             <div style="font-size:2rem;font-weight:800;color:#fff">${is.overallScore}<span style="font-size:1rem;color:rgba(255,255,255,0.7)">/100</span></div>
@@ -626,26 +587,31 @@ function initialize() {
             <div style="margin-top:8px;height:4px;background:rgba(255,255,255,0.2);border-radius:2px;"><div style="width:${is.overallScore}%;height:100%;background:#fff;border-radius:2px;"></div></div>
           </div>
         </div>
-        <div style="background:#f8fafc;border:1px solid #e11d48;border-radius:10px;padding:14px;margin-bottom:12px;">
+        <div style="background:#1a1a2e;border:1px solid #e11d48;border-radius:10px;padding:14px;margin-bottom:12px;">
           <div style="color:#e11d48;font-size:0.7rem;font-weight:700;letter-spacing:1px;margin-bottom:6px;">VERDICT</div>
-          <div style="color:#1e293b;font-size:0.9rem;">${escapeHtml(is.verdict || '')}</div>
+          <div style="color:#f1f5f9;font-size:0.9rem;">${escapeHtml(is.verdict || '')}</div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          <div style="background:#fafafa;border:1px solid #e2e8f0;border-radius:8px;padding:12px;">
-            <div style="color:#64748b;font-size:0.7rem;font-weight:700;letter-spacing:1px;margin-bottom:6px;">INNOVATION ANALYSIS</div>
-            <div style="color:#334155;font-size:0.82rem;">${escapeHtml(is.innovationReason || '')}</div>
+          <div style="background:#0f0f1a;border:1px solid #2a2a4a;border-radius:8px;padding:12px;">
+            <div style="color:#888;font-size:0.7rem;font-weight:700;letter-spacing:1px;margin-bottom:6px;">INNOVATION ANALYSIS</div>
+            <div style="color:#cbd5e1;font-size:0.82rem;">${escapeHtml(is.innovationReason || '')}</div>
           </div>
-          <div style="background:#fafafa;border:1px solid #e2e8f0;border-radius:8px;padding:12px;">
-            <div style="color:#64748b;font-size:0.7rem;font-weight:700;letter-spacing:1px;margin-bottom:6px;">MARKET ANALYSIS</div>
-            <div style="color:#334155;font-size:0.82rem;">${escapeHtml(is.marketReason || '')}</div>
+          <div style="background:#0f0f1a;border:1px solid #2a2a4a;border-radius:8px;padding:12px;">
+            <div style="color:#888;font-size:0.7rem;font-weight:700;letter-spacing:1px;margin-bottom:6px;">MARKET ANALYSIS</div>
+            <div style="color:#cbd5e1;font-size:0.82rem;">${escapeHtml(is.marketReason || '')}</div>
           </div>
         </div>
         ${is.similarProjects && is.similarProjects.length > 0 ? `
         <div style="margin-top:12px;">
           <div style="color:#888;font-size:0.7rem;font-weight:700;letter-spacing:1px;margin-bottom:8px;">COMPETING SOLUTIONS</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            ${is.similarProjects.map(p => `<span style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:20px;padding:4px 12px;color:#6d28d9;font-size:0.8rem;">${escapeHtml(p)}</span>`).join('')}
+            ${is.similarProjects.map(p => `<span style="background:#1e1e3a;border:1px solid #3a3a5a;border-radius:20px;padding:4px 12px;color:#a78bfa;font-size:0.8rem;">${escapeHtml(p)}</span>`).join('')}
           </div>
+        </div>` : ''}
+        ${is.keyDifferentiator ? `
+        <div style="margin-top:12px;background:#0f2a1a;border:1px solid #22c55e;border-radius:8px;padding:12px;">
+          <div style="color:#22c55e;font-size:0.7rem;font-weight:700;letter-spacing:1px;margin-bottom:6px;">OUR DIFFERENTIATOR</div>
+          <div style="color:#cbd5e1;font-size:0.82rem;">${escapeHtml(is.keyDifferentiator)}</div>
         </div>` : ''}
       `, '0.15s'));
     }
@@ -655,63 +621,42 @@ function initialize() {
     overview.appendChild(createBlock('03. ENTERPRISE SYSTEM ARCHITECTURE', `
       <div class="mermaid-wrapper" style="overflow-x:auto;">
         ${mermaidCode
-          ? `<div class="mermaid-container" id="mermaidDiagramOverview" style="min-width:600px;">${escapeHtml(mermaidCode)}</div>`
-          : '<p style="color:#888;padding:16px;">Architecture diagram will appear here after generation.</p>'
-        }
+        ? `<div class="mermaid-container" id="mermaidDiagramOverview" style="min-width:600px;">${escapeHtml(mermaidCode)}</div>`
+        : '<p style="color:#888;padding:16px;">Architecture diagram will appear here after generation.</p>'
+      }
       </div>
     `, '0.2s'));
 
-    // Block 4: APIs & Datasets Block
-    const externalApis = bp.external_apis || bp.techStack?.external_apis || [];
-    let apisHtml = `<div class="apis-block-grid">`;
-    if (externalApis.length > 0) {
-      apisHtml += externalApis.map(api => {
-        const match = api.match(/^(.*?)\s*\((.*?)\)$/);
-        const name = match ? match[1] : api;
-        const purpose = match ? match[2] : 'External integration';
-        let icon = '🔌';
-        if (name.toLowerCase().includes('dataset') || name.toLowerCase().includes('data')) icon = '📊';
-        if (name.toLowerCase().includes('auth') || name.toLowerCase().includes('clerk')) icon = '🔐';
-        if (name.toLowerCase().includes('payment') || name.toLowerCase().includes('stripe')) icon = '💳';
-        return `
-          <div class="api-tag-card">
-            <div class="api-icon">${icon}</div>
-            <div class="api-info">
-              <div class="api-name">${escapeHtml(name)}</div>
-              <div class="api-purpose">${escapeHtml(purpose)}</div>
+    // Block 4: Sprints
+    overview.appendChild(createBlock('04. AGILE MILESTONE PLAN', `
+      <div class="sprint-list">
+        ${(bp.sprints || []).map(s => `
+          <div class="sprint-item ${s.done ? 'done' : 'pending'}">
+            <div class="check">${s.done ? '✓' : ''}</div>
+            <div>
+              <h4>${escapeHtml(s.week)}: ${escapeHtml(s.title)}</h4>
+              <p>${escapeHtml(s.desc)}</p>
+              ${s.milestones && s.milestones.length > 0 ? `
+                <ul style="margin-top:6px;padding-left:16px;">
+                  ${s.milestones.map(m => `<li style="color:#94a3b8;font-size:0.8rem;margin-bottom:2px;">${escapeHtml(m)}</li>`).join('')}
+                </ul>` : ''}
             </div>
           </div>
-        `;
-      }).join('');
-    } else {
-      apisHtml += `
-        <div class="api-tag-card">
-          <div class="api-icon">🔐</div>
-          <div class="api-info">
-            <div class="api-name">Clerk Auth API</div>
-            <div class="api-purpose">User authentication & session control</div>
-          </div>
-        </div>
-        <div class="api-tag-card">
-          <div class="api-icon">🗄️</div>
-          <div class="api-info">
-            <div class="api-name">PostgreSQL Database</div>
-            <div class="api-purpose">Primary database relation layer</div>
-          </div>
-        </div>
-      `;
-    }
-    apisHtml += `</div>`;
-    overview.appendChild(createBlock('04. EXTERNAL APIs & DATASETS', apisHtml, '0.25s'));
-
-    // Block 5: Action Button for provisioning
-    overview.appendChild(createBlock('05. AUTOMATED PROVISIONING', `
-      <div style="display:flex;align-items:center;gap:12px;">
-        <button id="provisionBtn" class="provision-btn">
-          🚀 Provision on GitHub
-        </button>
-        <p style="font-size:0.8rem;color:var(--text-muted);">Instantly push README, setup guidelines, and milestones into a new repository.</p>
+        `).join('')}
       </div>
+      ${bp.githubIssues && bp.githubIssues.length > 0 ? `
+        <div style="margin-top:12px;">
+          <button id="provisionBtn" class="provision-btn">
+            🚀 Provision on GitHub (${bp.githubIssues.length} Issues)
+          </button>
+        </div>
+      ` : `
+        <div style="margin-top:12px;">
+          <button id="provisionBtn" class="provision-btn">
+            🚀 Provision on GitHub
+          </button>
+        </div>
+      `}
     `, '0.3s'));
 
     canvasContainer.appendChild(overview);
@@ -722,221 +667,40 @@ function initialize() {
     }
 
 
-    // ── Tab: Market Research ──
-    const marketTab = el('div', 'tab-panel', 'tabMarket');
-    
-    // Block 1: Market size and Literature summary
-    let marketLitHtml = `
-      <div style="display:flex; gap:20px; flex-wrap:wrap; margin-bottom:20px;">
-        <div style="flex:1; min-width:300px; background:#fafafa; border:1px solid var(--border); border-radius:12px; padding:20px;">
-          <h4 style="margin-bottom:12px; color:#0f172a; font-size:1rem; font-weight:600;">📊 Market Size & Industry Trends</h4>
-          <p style="font-size:0.88rem; line-height:1.6; color:#475569;">
-            ${escapeHtml(bp.ideaScore?.marketReason || 'The market demand for digital and AI-driven workflow optimization tools is growing rapidly. Citing research indicators, automating this domain yields up to 3x efficiency gains and addresses significant legacy overheads.')}
-          </p>
-        </div>
-        <div style="flex:1; min-width:300px; background:#fafafa; border:1px solid var(--border); border-radius:12px; padding:20px;">
-          <h4 style="margin-bottom:12px; color:#0f172a; font-size:1rem; font-weight:600;">📖 Academic & Literature Summary</h4>
-          <p style="font-size:0.88rem; line-height:1.6; color:#475569;">
-            Literature review of arXiv and IEEE publications highlights a transition from manual heuristics to deep learning. Citing referenced papers: models achieve up to 89%-98% forecasting accuracy, providing a solid theoretical justification for the proposed prototype architecture.
-          </p>
-        </div>
-      </div>
-    `;
-    marketTab.appendChild(createBlock('MARKET & LITERATURE ANALYSIS', marketLitHtml));
-
-    // Block 2: Existing Solution Comparison
-    const compList = bp.competitiveAnalysis || [];
-    let compHtml = `
-      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px;">Comparative analysis of primary existing solutions vs. the proposed AI architecture:</p>
-      <div class="competitors-table-wrapper">
-        <table class="competitors-table">
-          <thead>
-            <tr>
-              <th>Competitor / System</th>
-              <th>Technical Approach</th>
-              <th style="color:var(--primary);">Our AI Advantage (Insights Layer 2)</th>
-            </tr>
-          </thead>
-          <tbody>
-    `;
-    if (compList.length > 0) {
-      compHtml += compList.map(c => `
-        <tr>
-          <td><strong>${escapeHtml(c.competitor)}</strong></td>
-          <td>${escapeHtml(c.approach)}</td>
-          <td class="highlight-col">${escapeHtml(c.ourAdvantage)}</td>
-        </tr>
-      `).join('');
-    } else {
-      compHtml += `
-        <tr>
-          <td><strong>Manual Registries / Sheets</strong></td>
-          <td>Physical record-keeping, static offline document storage.</td>
-          <td class="highlight-col">Automated tracking, predictive forecasts, and instant access via chatbot interface.</td>
-        </tr>
-        <tr>
-          <td><strong>Basic Database Portals</strong></td>
-          <td>Simple CRUD operations with standard relational databases.</td>
-          <td class="highlight-col">AI-first analytics, RAG pipeline, and real-time security scanning updates.</td>
-        </tr>
-      `;
-    }
-    compHtml += `
-          </tbody>
-        </table>
-      </div>
-    `;
-    marketTab.appendChild(createBlock('EXISTING SOLUTION COMPARISON', compHtml));
-
-    // Block 3: Innovation Opportunities (Whitespace opportunities)
-    let gapHtml = `
-      <div class="whitespace-opportunity-card">
-        <div class="whitespace-opportunity-header">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-          Whitespace Opportunity (Where the Gap is)
-        </div>
-        <div class="whitespace-opportunity-body">
-          ${escapeHtml(bp.ideaScore?.keyDifferentiator || 'Legacy solutions fail to utilize real-time forecasting. By integrating a dynamic ML predictor directly with the user-facing interface, this system captures immediate demand variances, creating a high-fidelity scheduling mechanism that traditional canteens/portals cannot match.')}
-        </div>
-      </div>
-    `;
-    marketTab.appendChild(createBlock('INNOVATION GAP & OPPORTUNITIES', gapHtml));
-    canvasContainer.appendChild(marketTab);
-
-
     // ── Tab: DeepSearch ──
     const dsTab = el('div', 'tab-panel', 'tabDeepsearch');
-    const papersAndPatents = (bp.deepSearchResults || []).filter(r => r.type === 'paper' || r.type === 'patent');
-    const githubRepos = (bp.deepSearchResults || []).filter(r => r.type === 'github');
-
-    // 1. Papers & Patents Block
-    let papersHtml = `<div class="search-results">`;
-    if (papersAndPatents.length > 0) {
-      papersHtml += papersAndPatents.map(r => `
-        <div class="search-result-item">
-          <span class="result-type ${r.type}">${r.type.toUpperCase()}</span>
-          <div class="result-info">
-            <h4>${r.url ? `<a href="${escapeHtml(r.url)}" target="_blank" rel="noopener">${escapeHtml(r.title)}</a>` : escapeHtml(r.title)}</h4>
-            <p>${escapeHtml(r.source)} — ${escapeHtml(r.desc)}</p>
-          </div>
-        </div>
-      `).join('');
-    } else {
-      papersHtml += '<p style="color:#888;padding:16px;">No academic papers or patents found.</p>';
-    }
-    papersHtml += `</div>`;
-    dsTab.appendChild(createBlock('ACADEMIC LITERATURE & PATENTS', papersHtml));
-
-    // 2. GitHub Repos Block (with proper listings, links, stars, description)
-    let reposHtml = `<div class="github-repo-grid">`;
-    if (githubRepos.length > 0) {
-      reposHtml += githubRepos.map(r => {
-        const repoName = r.title || 'GitHub Repository';
-        const starsMatch = repoName.match(/\(★\s*([\d\.]+[k]?)\)/i);
-        const stars = starsMatch ? starsMatch[1] : '350';
-        const cleanTitle = repoName.replace(/\(★\s*.*?\)/g, '').trim();
-        const displayLanguage = r.language || 'JavaScript';
-        return `
-          <div class="github-repo-card">
-            <div class="github-repo-header">
-              <a href="${escapeHtml(r.url || 'https://github.com')}" target="_blank" rel="noopener" class="github-repo-title">${escapeHtml(cleanTitle)}</a>
-              <span class="github-star-badge">★ ${escapeHtml(stars)}</span>
-            </div>
-            <p class="github-repo-desc">${escapeHtml(r.desc)}</p>
-            <div class="github-repo-footer">
-              <span class="github-repo-lang"><span class="github-lang-dot"></span>${escapeHtml(displayLanguage)}</span>
-              <span>${escapeHtml(r.source || 'GitHub')}</span>
+    dsTab.appendChild(createBlock('DEEPSEARCH RAG RESULTS', `
+      <div class="search-results">
+        ${(bp.deepSearchResults || []).map(r => `
+          <div class="search-result-item">
+            <span class="result-type ${r.type}">${r.type.toUpperCase()}</span>
+            <div class="result-info">
+              <h4>${r.url ? `<a href="${escapeHtml(r.url)}" target="_blank" rel="noopener">${escapeHtml(r.title)}</a>` : escapeHtml(r.title)}</h4>
+              <p>${escapeHtml(r.source)} — ${escapeHtml(r.desc)}</p>
             </div>
           </div>
-        `;
-      }).join('');
-    } else {
-      reposHtml += `
-        <div class="github-repo-card">
-          <div class="github-repo-header">
-            <a href="https://github.com" target="_blank" rel="noopener" class="github-repo-title">open-source-${(bp.title || 'project').toLowerCase().replace(/\s+/g, '-')}-core</a>
-            <span class="github-star-badge">★ 520</span>
-          </div>
-          <p class="github-repo-desc">Reference implementation of core components, database triggers, and model pipelines.</p>
-          <div class="github-repo-footer">
-            <span class="github-repo-lang"><span class="github-lang-dot"></span>TypeScript</span>
-            <span>GitHub</span>
-          </div>
-        </div>
-        <div class="github-repo-card">
-          <div class="github-repo-header">
-            <a href="https://github.com" target="_blank" rel="noopener" class="github-repo-title">ai-${(bp.title || 'project').toLowerCase().replace(/\s+/g, '-')}-pipeline</a>
-            <span class="github-star-badge">★ 248</span>
-          </div>
-          <p class="github-repo-desc">ML engineering repository with model configurations, datasets preprocessing scripts, and serving setups.</p>
-          <div class="github-repo-footer">
-            <span class="github-repo-lang"><span class="github-lang-dot"></span>Python</span>
-            <span>GitHub</span>
-          </div>
-        </div>
-      `;
-    }
-    reposHtml += `</div>`;
-    dsTab.appendChild(createBlock('REFERENCE GITHUB REPOSITORIES', reposHtml));
+        `).join('')}
+        ${(bp.deepSearchResults || []).length === 0 ? '<p style="color:#888;padding:16px;">Run a query to see real research results from arXiv, IEEE, and GitHub.</p>' : ''}
+      </div>
+    `));
     canvasContainer.appendChild(dsTab);
 
-
-    // ── Tab: Timeline [NEW] (Gantt-style/visual timeline) ──
-    const timelineTab = el('div', 'tab-panel', 'tabTimeline');
-    const sprintList = bp.sprints || [];
-    
-    let timelineHtml = `<div class="timeline-gantt-wrapper">`;
-    timelineHtml += `
-      <div class="gantt-header-row">
-        <div class="gantt-header-label">Sprint deliverables</div>
-        <div class="gantt-header-weeks">
-          <div class="gantt-header-week">Week 1</div>
-          <div class="gantt-header-week">Week 2</div>
-          <div class="gantt-header-week">Week 3</div>
-          <div class="gantt-header-week">Week 4</div>
-        </div>
+    // ── Tab: Architecture Diagram (Mermaid) ──
+    const archTab = el('div', 'tab-panel', 'tabArchitecture');
+    archTab.appendChild(createBlock('SYSTEM ARCHITECTURE DIAGRAM', `
+      <div class="mermaid-wrapper">
+        ${mermaidCode
+        ? `<div class="mermaid-container" id="mermaidDiagram">${escapeHtml(mermaidCode)}</div>`
+        : '<p style="color:#888;padding:16px;">Architecture diagram will appear here after generation.</p>'
+      }
       </div>
-    `;
-    if (sprintList.length > 0) {
-      sprintList.forEach((s, idx) => {
-        const weekNum = parseInt(s.week.replace(/[^0-9]/g, '')) || (idx + 1);
-        const leftPercent = (weekNum - 1) * 25;
-        const isDoneClass = s.done ? 'done' : '';
-        const checkIcon = s.done ? '✓' : '⏳';
-        
-        timelineHtml += `
-          <div style="margin-bottom: 20px;">
-            <div class="gantt-task-row">
-              <div class="gantt-task-label">
-                <div class="gantt-task-name">${escapeHtml(s.week)}: ${escapeHtml(s.title)}</div>
-                <div class="gantt-task-desc">${escapeHtml(s.desc)}</div>
-              </div>
-              <div class="gantt-task-track">
-                <div class="gantt-grid-line" style="left: 0%;"></div>
-                <div class="gantt-grid-line" style="left: 25%;"></div>
-                <div class="gantt-grid-line" style="left: 50%;"></div>
-                <div class="gantt-grid-line" style="left: 75%;"></div>
-                <div class="gantt-grid-line" style="left: 100%;"></div>
-                <div class="gantt-bar ${isDoneClass}" style="left: ${leftPercent}%; width: 25%;">
-                  ${checkIcon} Sprint Active
-                </div>
-              </div>
-            </div>
-            ${s.milestones && s.milestones.length > 0 ? `
-              <div class="gantt-milestones-row">
-                ${s.milestones.map(m => `<span class="gantt-milestone-tag ${s.done ? 'done' : ''}">${escapeHtml(m)}</span>`).join('')}
-              </div>
-            ` : ''}
-          </div>
-        `;
-      });
-    } else {
-      timelineHtml += '<p style="color:#888;padding:16px;">No sprint milestones defined.</p>';
-    }
-    timelineHtml += `</div>`;
-    timelineTab.appendChild(createBlock('GANTT-STYLE VISUAL IMPLEMENTATION TIMELINE', timelineHtml));
-    canvasContainer.appendChild(timelineTab);
+    `));
+    canvasContainer.appendChild(archTab);
 
+    // Render Mermaid after DOM is ready
+    if (mermaidCode) {
+      setTimeout(() => renderMermaidDiagram(mermaidCode), 200);
+    }
 
     // ── Tab: AI Mentor ──
     const mentorTab = el('div', 'tab-panel', 'tabMentor');
@@ -944,9 +708,9 @@ function initialize() {
       <div class="mentor-chat-container">
         <div class="chat-messages" id="chatMessages">
           ${(bp.mentorChat || []).map(m => m.from === 'bot'
-            ? `<div class="msg bot"><div class="avatar">🤖</div><div class="bubble">${escapeHtml(m.text)}</div></div>`
-            : `<div class="msg user"><div class="bubble">${escapeHtml(m.text)}</div></div>`
-          ).join('')}
+      ? `<div class="msg bot"><div class="avatar">🤖</div><div class="bubble">${escapeHtml(m.text)}</div></div>`
+      : `<div class="msg user"><div class="bubble">${escapeHtml(m.text)}</div></div>`
+    ).join('')}
         </div>
         <div class="chat-input-row">
           <input type="text" id="mentorInput" placeholder="Ask your AI mentor anything...">
@@ -1299,10 +1063,6 @@ function initialize() {
   });
 
   queryInput.addEventListener('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); generateBtn.click(); } });
-
-  document.getElementById('exportPdfBtn')?.addEventListener('click', () => {
-    window.print();
-  });
 }
 
 // Safe initialization
