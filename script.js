@@ -560,27 +560,87 @@ function initialize() {
       </div>
     `, '0.1s'));
 
-    // Block 2: Architecture Boxes
-    overview.appendChild(createBlock('02. RECOMMENDED ARCHITECTURE', `
-      <div class="arch-diagram">
-        ${(bp.arch || []).map((a, i) => `
-          ${i > 0 ? '<div class="arch-arrow">→</div>' : ''}
-          <div class="arch-card ${a.hl ? 'highlight-card' : ''}">
-            <div class="arch-icon">${a.icon}</div>
-            <div class="arch-title">${escapeHtml(a.title)}</div>
-            <div class="arch-stack">${escapeHtml(a.stack)}</div>
+    // Block 2: Idea Score Card
+    if (bp.ideaScore) {
+      const is = bp.ideaScore;
+      const scoreColor = (s) => s >= 75 ? '#22c55e' : s >= 50 ? '#f59e0b' : '#ef4444';
+      overview.appendChild(createBlock('02. IDEA INTELLIGENCE SCORE', `
+        <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;">
+          <div style="flex:1;min-width:140px;background:#1a1a2e;border:1px solid #2a2a4a;border-radius:12px;padding:16px;text-align:center;">
+            <div style="font-size:2rem;font-weight:800;color:${scoreColor(is.innovationScore)}">${is.innovationScore}<span style="font-size:1rem;color:#888">/100</span></div>
+            <div style="color:#888;font-size:0.75rem;margin-top:4px;text-transform:uppercase;letter-spacing:1px;">Innovation</div>
+            <div style="margin-top:8px;height:4px;background:#2a2a4a;border-radius:2px;"><div style="width:${is.innovationScore}%;height:100%;background:${scoreColor(is.innovationScore)};border-radius:2px;"></div></div>
           </div>
-        `).join('')}
+          <div style="flex:1;min-width:140px;background:#1a1a2e;border:1px solid #2a2a4a;border-radius:12px;padding:16px;text-align:center;">
+            <div style="font-size:2rem;font-weight:800;color:${scoreColor(is.complexityScore)}">${is.complexityScore}<span style="font-size:1rem;color:#888">/100</span></div>
+            <div style="color:#888;font-size:0.75rem;margin-top:4px;text-transform:uppercase;letter-spacing:1px;">Complexity</div>
+            <div style="margin-top:8px;height:4px;background:#2a2a4a;border-radius:2px;"><div style="width:${is.complexityScore}%;height:100%;background:${scoreColor(is.complexityScore)};border-radius:2px;"></div></div>
+          </div>
+          <div style="flex:1;min-width:140px;background:#1a1a2e;border:1px solid #2a2a4a;border-radius:12px;padding:16px;text-align:center;">
+            <div style="font-size:2rem;font-weight:800;color:${scoreColor(is.marketScore)}">${is.marketScore}<span style="font-size:1rem;color:#888">/100</span></div>
+            <div style="color:#888;font-size:0.75rem;margin-top:4px;text-transform:uppercase;letter-spacing:1px;">Market</div>
+            <div style="margin-top:8px;height:4px;background:#2a2a4a;border-radius:2px;"><div style="width:${is.marketScore}%;height:100%;background:${scoreColor(is.marketScore)};border-radius:2px;"></div></div>
+          </div>
+          <div style="flex:1;min-width:140px;background:linear-gradient(135deg,#e11d48,#7c3aed);border-radius:12px;padding:16px;text-align:center;">
+            <div style="font-size:2rem;font-weight:800;color:#fff">${is.overallScore}<span style="font-size:1rem;color:rgba(255,255,255,0.7)">/100</span></div>
+            <div style="color:rgba(255,255,255,0.8);font-size:0.75rem;margin-top:4px;text-transform:uppercase;letter-spacing:1px;">Overall Score</div>
+            <div style="margin-top:8px;height:4px;background:rgba(255,255,255,0.2);border-radius:2px;"><div style="width:${is.overallScore}%;height:100%;background:#fff;border-radius:2px;"></div></div>
+          </div>
+        </div>
+        <div style="background:#1a1a2e;border:1px solid #e11d48;border-radius:10px;padding:14px;margin-bottom:12px;">
+          <div style="color:#e11d48;font-size:0.7rem;font-weight:700;letter-spacing:1px;margin-bottom:6px;">VERDICT</div>
+          <div style="color:#f1f5f9;font-size:0.9rem;">${escapeHtml(is.verdict || '')}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div style="background:#0f0f1a;border:1px solid #2a2a4a;border-radius:8px;padding:12px;">
+            <div style="color:#888;font-size:0.7rem;font-weight:700;letter-spacing:1px;margin-bottom:6px;">INNOVATION ANALYSIS</div>
+            <div style="color:#cbd5e1;font-size:0.82rem;">${escapeHtml(is.innovationReason || '')}</div>
+          </div>
+          <div style="background:#0f0f1a;border:1px solid #2a2a4a;border-radius:8px;padding:12px;">
+            <div style="color:#888;font-size:0.7rem;font-weight:700;letter-spacing:1px;margin-bottom:6px;">MARKET ANALYSIS</div>
+            <div style="color:#cbd5e1;font-size:0.82rem;">${escapeHtml(is.marketReason || '')}</div>
+          </div>
+        </div>
+        ${is.similarProjects && is.similarProjects.length > 0 ? `
+        <div style="margin-top:12px;">
+          <div style="color:#888;font-size:0.7rem;font-weight:700;letter-spacing:1px;margin-bottom:8px;">COMPETING SOLUTIONS</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            ${is.similarProjects.map(p => `<span style="background:#1e1e3a;border:1px solid #3a3a5a;border-radius:20px;padding:4px 12px;color:#a78bfa;font-size:0.8rem;">${escapeHtml(p)}</span>`).join('')}
+          </div>
+        </div>` : ''}
+        ${is.keyDifferentiator ? `
+        <div style="margin-top:12px;background:#0f2a1a;border:1px solid #22c55e;border-radius:8px;padding:12px;">
+          <div style="color:#22c55e;font-size:0.7rem;font-weight:700;letter-spacing:1px;margin-bottom:6px;">OUR DIFFERENTIATOR</div>
+          <div style="color:#cbd5e1;font-size:0.82rem;">${escapeHtml(is.keyDifferentiator)}</div>
+        </div>` : ''}
+      `, '0.15s'));
+    }
+
+    // Block 3: Full Enterprise Architecture Diagram (Mermaid)
+    const mermaidCode = bp.architectureMermaid || '';
+    overview.appendChild(createBlock('03. ENTERPRISE SYSTEM ARCHITECTURE', `
+      <div class="mermaid-wrapper" style="overflow-x:auto;">
+        ${mermaidCode
+          ? `<div class="mermaid-container" id="mermaidDiagramOverview" style="min-width:600px;">${escapeHtml(mermaidCode)}</div>`
+          : '<p style="color:#888;padding:16px;">Architecture diagram will appear here after generation.</p>'
+        }
       </div>
     `, '0.2s'));
 
-    // Block 3: Sprints
-    overview.appendChild(createBlock('03. AGILE MILESTONE PLAN', `
+    // Block 4: Sprints
+    overview.appendChild(createBlock('04. AGILE MILESTONE PLAN', `
       <div class="sprint-list">
         ${(bp.sprints || []).map(s => `
           <div class="sprint-item ${s.done ? 'done' : 'pending'}">
             <div class="check">${s.done ? '✓' : ''}</div>
-            <div><h4>${escapeHtml(s.week)}: ${escapeHtml(s.title)}</h4><p>${escapeHtml(s.desc)}</p></div>
+            <div>
+              <h4>${escapeHtml(s.week)}: ${escapeHtml(s.title)}</h4>
+              <p>${escapeHtml(s.desc)}</p>
+              ${s.milestones && s.milestones.length > 0 ? `
+                <ul style="margin-top:6px;padding-left:16px;">
+                  ${s.milestones.map(m => `<li style="color:#94a3b8;font-size:0.8rem;margin-bottom:2px;">${escapeHtml(m)}</li>`).join('')}
+                </ul>` : ''}
+            </div>
           </div>
         `).join('')}
       </div>
@@ -600,6 +660,12 @@ function initialize() {
     `, '0.3s'));
 
     canvasContainer.appendChild(overview);
+
+    // Render Mermaid in Overview after DOM is ready
+    if (mermaidCode) {
+      setTimeout(() => renderMermaidDiagram(mermaidCode, 'mermaidDiagramOverview'), 200);
+    }
+
 
     // ── Tab: DeepSearch ──
     const dsTab = el('div', 'tab-panel', 'tabDeepsearch');
@@ -691,8 +757,8 @@ function initialize() {
   }
 
   // ── Mermaid Diagram Renderer ────────────────────────────────────────────
-  async function renderMermaidDiagram(code) {
-    const container = document.getElementById('mermaidDiagram');
+  async function renderMermaidDiagram(code, containerId = 'mermaidDiagram') {
+    const container = document.getElementById(containerId);
     if (!container) return;
 
     try {
@@ -711,22 +777,22 @@ function initialize() {
       container.removeAttribute('data-processed');
       container.className = 'mermaid';
 
-      // Parse output for potential invalid mermaid chars
+      // Strip markdown fences if present
       let safeCode = code.replace(/```mermaid\n?/, '').replace(/```$/, '').trim();
 
-      const { svg } = await mermaid.render('arch-diagram-' + Date.now(), safeCode);
+      const { svg } = await mermaid.render('arch-diagram-' + containerId + '-' + Date.now(), safeCode);
       container.innerHTML = svg;
       container.className = 'mermaid-rendered';
     } catch (err) {
       console.warn('[Mermaid] Render error:', err.message);
-      container.innerHTML = `<div style="padding: 2rem; color: #ff4444; text-align: center; border: 1px dashed #ffb3b3; border-radius: 8px; margin: 1rem 0; background: #fff5f5;">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom: 1rem;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-        <h4 style="margin: 0 0 0.5rem 0; color: #d32f2f;">Diagram Generation Failed</h4>
-        <p style="font-size: 0.9rem; color: #666; margin: 0 0 1rem 0;">The AI generated invalid flowchart syntax. You can ask the AI Mentor to redraw the diagram.</p>
-        <pre style="text-align: left; background: #222; color: #0f0; padding: 1rem; border-radius: 4px; font-size: 11px; overflow-x: auto;">${escapeHtml(code)}</pre>
+      container.innerHTML = `<div style="padding:2rem;color:#ff4444;text-align:center;border:1px dashed #ffb3b3;border-radius:8px;margin:1rem 0;background:#fff5f5;">
+        <h4 style="margin:0 0 0.5rem 0;color:#d32f2f;">Diagram Generation Failed</h4>
+        <p style="font-size:0.9rem;color:#666;margin:0 0 1rem 0;">The AI generated invalid flowchart syntax. You can ask the AI Mentor to redraw the diagram.</p>
+        <pre style="text-align:left;background:#222;color:#0f0;padding:1rem;border-radius:4px;font-size:11px;overflow-x:auto;">${escapeHtml(code)}</pre>
       </div>`;
     }
   }
+
 
   // ── Wire Mentor Chat to Real API ────────────────────────────────────────
   function wireMentorChat(bp) {

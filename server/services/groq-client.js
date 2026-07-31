@@ -102,42 +102,60 @@ function validateAndNormalizeBlueprint(bp, query) {
     title: bp.title || query.substring(0, 60),
     tagline: bp.tagline || 'AI-Powered Innovation',
     problemStatement: bp.problemStatement || 'Addressing key challenges in this domain.',
+    ideaScore: {
+      innovationScore: bp.ideaScore?.innovationScore ?? 65,
+      innovationReason: bp.ideaScore?.innovationReason || 'Assessed based on existing similar projects found during research.',
+      complexityScore: bp.ideaScore?.complexityScore ?? 70,
+      complexityReason: bp.ideaScore?.complexityReason || 'Requires integration of multiple technical components.',
+      marketScore: bp.ideaScore?.marketScore ?? 65,
+      marketReason: bp.ideaScore?.marketReason || 'Growing market demand for AI-powered solutions in this domain.',
+      overallScore: bp.ideaScore?.overallScore ?? 67,
+      verdict: bp.ideaScore?.verdict || 'Solid idea with clear technical path to execution.',
+      similarProjects: bp.ideaScore?.similarProjects || [],
+      keyDifferentiator: bp.ideaScore?.keyDifferentiator || 'AI-first approach with real-time data processing.'
+    },
     techStack: {
       frontend: bp.techStack?.frontend || ['React.js'],
       backend: bp.techStack?.backend || ['Node.js', 'Express'],
       database: bp.techStack?.database || ['PostgreSQL'],
       aiMl: bp.techStack?.aiMl || ['Python', 'LangChain'],
-      devops: bp.techStack?.devops || ['Docker', 'GitHub Actions']
+      devops: bp.techStack?.devops || ['Docker', 'GitHub Actions'],
+      external_apis: bp.techStack?.external_apis || []
     },
     architectureMermaid: bp.architectureMermaid || generateDefaultMermaid(bp),
+    systemDesignDetails: bp.systemDesignDetails || {},
     stats: bp.stats || [
       { val: '10M+', label: 'Potential users impacted' },
       { val: '3x', label: 'Faster than manual approach' }
     ],
     warning: bp.warning || 'Manual approaches in this domain are inefficient and do not scale.',
     arch: bp.arch || [
-      { icon: '⚛️', title: 'Frontend', stack: (bp.techStack?.frontend || ['React']).join(', ') },
-      { icon: '⚙️', title: 'Backend', stack: (bp.techStack?.backend || ['Node.js']).join(', ') },
-      { icon: '🧠', title: 'AI Core', stack: (bp.techStack?.aiMl || ['Python']).join(', '), hl: true },
-      { icon: '🗄️', title: 'Database', stack: (bp.techStack?.database || ['PostgreSQL']).join(', ') }
+      { icon: '🖥️', title: 'Presentation Layer', stack: (bp.techStack?.frontend || ['React']).join(', '), hl: false },
+      { icon: '🔌', title: 'API Gateway', stack: 'Kong, Nginx, Rate Limiting', hl: false },
+      { icon: '⚙️', title: 'Backend Services', stack: (bp.techStack?.backend || ['Node.js']).join(', '), hl: false },
+      { icon: '🧠', title: 'AI/ML Engine', stack: (bp.techStack?.aiMl || ['Python']).join(', '), hl: true },
+      { icon: '🗄️', title: 'Data Layer', stack: (bp.techStack?.database || ['PostgreSQL']).join(', '), hl: false },
+      { icon: '☁️', title: 'Infrastructure', stack: (bp.techStack?.devops || ['Docker']).join(', '), hl: false }
     ],
     deepSearchResults: bp.deepSearchResults || [],
+    competitiveAnalysis: bp.competitiveAnalysis || [],
     mentorChat: bp.mentorChat || [
       { from: 'bot', text: `🚀 Project "${bp.title || query}" initialized! Ready to start building?` }
     ],
     webIntel: bp.webIntel || [],
     sprints: bp.sprints || [
-      { week: 'W1', title: 'Foundation', desc: 'Project setup & core architecture', done: false },
-      { week: 'W2', title: 'Core Features', desc: 'Primary functionality development', done: false },
-      { week: 'W3', title: 'AI Integration', desc: 'ML pipeline & model training', done: false },
-      { week: 'W4', title: 'Deploy & Polish', desc: 'Testing, CI/CD & launch', done: false }
+      { week: 'W1', title: 'Foundation', desc: 'Project setup & core architecture', done: false, milestones: [] },
+      { week: 'W2', title: 'Core Features', desc: 'Primary functionality development', done: false, milestones: [] },
+      { week: 'W3', title: 'AI Integration', desc: 'ML pipeline & model training', done: false, milestones: [] },
+      { week: 'W4', title: 'Deploy & Polish', desc: 'Testing, CI/CD & launch', done: false, milestones: [] }
     ],
     githubIssues: bp.githubIssues || [],
     impactMetrics: bp.impactMetrics || {
       cycleTimeReduction: '↓ 40%',
       researchHoursSaved: '12+ hrs',
       stackConfidence: '94%'
-    }
+    },
+    deploymentPlan: bp.deploymentPlan || {}
   };
 }
 
