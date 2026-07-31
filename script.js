@@ -72,6 +72,14 @@ function initialize() {
         loginScreen.style.opacity = '1';
         window.Clerk.mountSignIn(document.getElementById('clerk-sign-in'));
       }
+    } else {
+      console.warn("Clerk JS not found. Falling back to Guest Mode.");
+      loginScreen.style.transition = 'opacity 0.4s ease';
+      loginScreen.style.opacity = '0';
+      setTimeout(() => {
+        loginScreen.style.display = 'none';
+        showScreen('landing');
+      }, 420);
     }
   };
 
