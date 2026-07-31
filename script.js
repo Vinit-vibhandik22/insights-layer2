@@ -80,14 +80,15 @@ function initialize() {
 
   // ── Clerk Auth Flow ──
   async function initClerkAuth() {
-    // Wait up to 4 seconds for Clerk SDK to become available
+    // Wait up to 8 seconds for Clerk SDK to become available
     let waited = 0;
-    while (!window.Clerk && waited < 4000) {
+    while (!window.Clerk && waited < 8000) {
       await new Promise(r => setTimeout(r, 200));
       waited += 200;
     }
 
     if (window.Clerk) {
+      if (loginFallback) loginFallback.style.display = 'none'; // hide fallback if it was shown
       try {
         await window.Clerk.load();
 
