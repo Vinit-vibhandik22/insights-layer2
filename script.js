@@ -89,32 +89,40 @@ function initialize() {
 
     if (window.Clerk) {
       try {
-        await window.Clerk.load();
+        const clerkPubKey = 'pk_test_Y2FwYWJsZS1hc3AtMTEuY2xlcmsuYWNjb3VudHMuZGV2JA';
+        const clerkInstance = typeof window.Clerk === 'function' ? new window.Clerk(clerkPubKey) : window.Clerk;
+        window.clerkApp = clerkInstance; // Expose globally for API calls
+        
+        await clerkInstance.load();
 
-        if (window.Clerk.user) {
+        if (clerkInstance.user) {
           // Already signed in → go straight to landing
           dismissLogin();
-          window.Clerk.mountUserButton(document.getElementById('clerk-user-button'));
+          clerkInstance.mountUserButton(document.getElementById('clerk-user-button'));
         } else {
           // Not signed in → mount Clerk's SignIn widget
           loginScreen.style.display = 'flex';
           loginScreen.style.opacity = '1';
-          window.Clerk.mountSignIn(document.getElementById('clerk-sign-in'));
+          clerkInstance.mountSignIn(document.getElementById('clerk-sign-in'));
 
           // Listen for sign-in completion
-          window.Clerk.addListener(({ user }) => {
+          clerkInstance.addListener(({ user }) => {
             if (user) {
               dismissLogin();
-              window.Clerk.mountUserButton(document.getElementById('clerk-user-button'));
+              clerkInstance.mountUserButton(document.getElementById('clerk-user-button'));
             }
           });
         }
       } catch (err) {
         console.error('[Clerk] Load failed:', err);
+        const log = document.getElementById('debug-log');
+        if (log) { log.style.display = 'block'; log.textContent += `[Clerk] Load failed: ${err.message || err}\n`; }
         showGuestFallback();
       }
     } else {
       console.warn('[Auth] Clerk JS did not load. Showing guest fallback.');
+      const log = document.getElementById('debug-log');
+      if (log) { log.style.display = 'block'; log.textContent += `[Auth] Clerk JS is undefined after 4 seconds.\n`; }
       showGuestFallback();
     }
   }
@@ -181,8 +189,8 @@ function initialize() {
 
     try {
         let clerkToken = null;
-        if (window.Clerk && window.Clerk.session) {
-          clerkToken = await window.Clerk.session.getToken();
+        if (window.clerkApp && window.clerkApp.session) {
+          clerkToken = await window.clerkApp.session.getToken();
         }
         
         const headers = { 'Content-Type': 'application/json' };
