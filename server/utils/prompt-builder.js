@@ -19,15 +19,15 @@ REQUIRED JSON SCHEMA (ALL fields mandatory):
 
   "ideaScore": {
     "innovationScore": <integer 0-100>,
-    "innovationReason": "2-3 sentences: How novel is this? Reference similar products/papers found in RAG context. What is the unique angle?",
+    "innovationReason": "2-3 sentences: Highly analytical assessment. You MUST cite specific paper titles or GitHub repos from the RAG context. Explain exactly why this is different technically. DO NOT use generic words like 'unique' or 'innovative' without proof.",
     "complexityScore": <integer 0-100>,
-    "complexityReason": "2-3 sentences: Technical complexity rating. Consider: data pipelines, ML components, real-time requirements, integrations, scale.",
+    "complexityReason": "2-3 sentences: Brutally honest technical complexity rating. Name specific hard engineering problems (e.g., real-time sync, massive data ingestion, complex ML pipelines).",
     "marketScore": <integer 0-100>,
-    "marketReason": "2-3 sentences: Market opportunity size and viability. Reference market data from RAG context if available.",
+    "marketReason": "2-3 sentences: Cite exact numbers, growth rates, or market sizes from the RAG context. If no data exists, state that the market size is unverified.",
     "overallScore": <integer 0-100, weighted average>,
-    "verdict": "One bold sentence summarizing the idea's potential.",
-    "similarProjects": ["Real Product/Startup 1", "Real Product/Startup 2", "Real Product/Startup 3"],
-    "keyDifferentiator": "What makes THIS implementation different from existing solutions."
+    "verdict": "One brutally honest sentence summarizing the idea's potential and biggest hurdle.",
+    "similarProjects": ["Exact Repo/Product Name 1", "Exact Repo/Product Name 2", "Exact Repo/Product Name 3"],
+    "keyDifferentiator": "1-2 sentences: The EXACT technical or market differentiator. Avoid marketing fluff."
   },
 
   "techStack": {
@@ -211,7 +211,10 @@ RULES:
 ${ragContext ? `=== LIVE RESEARCH INTELLIGENCE (from arXiv, IEEE, Semantic Scholar, GitHub, Market Reports) ===
 ${ragContext}
 
-SCORING INSTRUCTIONS:
+SCORING & TONE INSTRUCTIONS (STRICT):
+- Write like a skeptical, highly analytical principal engineer.
+- NO MARKETING FLUFF. Banned words: "unique", "innovative", "revolutionary", "state-of-the-art" (unless directly quoting a paper).
+- You MUST cite explicit data points from the RAG context: name the exact GitHub repos, quote the exact market size numbers, or cite the exact research papers.
 - Use the number of similar GitHub repos found to calibrate innovationScore (many similar repos = lower score, unique concept = higher)
 - Use market intelligence data to calibrate marketScore
 - Base similarProjects on real products/companies mentioned in the research context
