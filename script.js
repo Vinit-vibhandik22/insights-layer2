@@ -50,63 +50,88 @@ function initialize() {
   const loaderText = document.getElementById('loaderText');
   const loaderSubText = document.getElementById('loaderSubText');
   const progressBar = document.getElementById('progressBar');
-  
-  // ── Auth Handler (Clerk) ──
-  const checkClerkAuth = async () => {
-    if (window.Clerk) {
-      await window.Clerk.load();
-      if (window.Clerk.user) {
-        loginScreen.style.transition = 'opacity 0.4s ease';
-        loginScreen.style.opacity = '0';
-        const gridBg = document.querySelector('.grid-bg');
-        if(gridBg) gridBg.style.animation = 'none';
-        
-        setTimeout(() => {
-          loginScreen.style.display = 'none';
-          showScreen('landing');
-        }, 420);
-        
-        window.Clerk.mountUserButton(document.getElementById('clerk-user-button'));
-      } else {
-        loginScreen.style.display = 'flex';
-        loginScreen.style.opacity = '1';
-        window.Clerk.mountSignIn(document.getElementById('clerk-sign-in'));
-      }
-    } else {
-      console.warn("Clerk JS not found. Falling back to Guest Mode.");
-      loginScreen.style.transition = 'opacity 0.4s ease';
-      loginScreen.style.opacity = '0';
-      setTimeout(() => {
-        loginScreen.style.display = 'none';
-        showScreen('landing');
-      }, 420);
-    }
-  };
-
-  if (document.readyState === 'complete') {
-    checkClerkAuth();
-  } else {
-    window.addEventListener('load', checkClerkAuth);
-  }
   const canvasContainer = document.getElementById('canvasContainer');
-  const loginBtn = document.getElementById('loginBtn');
   const loginScreen = document.getElementById('login');
+  const loginFallback = document.getElementById('login-fallback');
+  const loginBtn = document.getElementById('loginBtn');
 
   // ── State ──
   let currentBlueprint = null;
   let chatHistory = [];
 
-  // ── Login Handler ──
-  if (loginBtn && loginScreen) {
-    loginBtn.addEventListener('click', () => {
-      loginScreen.style.transition = 'opacity 0.4s ease';
-      loginScreen.style.opacity = '0';
-      setTimeout(() => { loginScreen.style.display = 'none'; }, 420);
-    });
-    document.getElementById('password')?.addEventListener('keypress', e => {
-      if (e.key === 'Enter') loginBtn.click();
-    });
+  // ── Screen Management ──
+  function showScreen(name) {
+    Object.values(screens).forEach(s => s.classList.remove('active'));
+    screens[name].classList.add('active');
+    document.getElementById('topNav').style.display = name === 'dashboard' ? 'none' : '';
   }
+
+  // ── Dismiss Login Screen ──
+  function dismissLogin() {
+    loginScreen.style.transition = 'opacity 0.4s ease';
+    loginScreen.style.opacity = '0';
+    const gridBg = document.querySelector('.grid-bg');
+    if (gridBg) gridBg.style.animation = 'none';
+    setTimeout(() => {
+      loginScreen.style.display = 'none';
+      showScreen('landing');
+    }, 420);
+  }
+
+  // ── Clerk Auth Flow ──
+  async function initClerkAuth() {
+    // Wait up to 4 seconds for Clerk SDK to become available
+    let waited = 0;
+    while (!window.Clerk && waited < 4000) {
+      await new Promise(r => setTimeout(r, 200));
+      waited += 200;
+    }
+
+    if (window.Clerk) {
+      try {
+        await window.Clerk.load();
+
+        if (window.Clerk.user) {
+          // Already signed in → go straight to landing
+          dismissLogin();
+          window.Clerk.mountUserButton(document.getElementById('clerk-user-button'));
+        } else {
+          // Not signed in → mount Clerk's SignIn widget
+          loginScreen.style.display = 'flex';
+          loginScreen.style.opacity = '1';
+          window.Clerk.mountSignIn(document.getElementById('clerk-sign-in'));
+
+          // Listen for sign-in completion
+          window.Clerk.addListener(({ user }) => {
+            if (user) {
+              dismissLogin();
+              window.Clerk.mountUserButton(document.getElementById('clerk-user-button'));
+            }
+          });
+        }
+      } catch (err) {
+        console.error('[Clerk] Load failed:', err);
+        showGuestFallback();
+      }
+    } else {
+      console.warn('[Auth] Clerk JS did not load. Showing guest fallback.');
+      showGuestFallback();
+    }
+  }
+
+  function showGuestFallback() {
+    if (loginFallback) {
+      loginFallback.style.display = 'block';
+      loginFallback.querySelector('p').textContent = 'Auth service unavailable.';
+    }
+    if (loginBtn) {
+      loginBtn.style.display = 'inline-block';
+      loginBtn.addEventListener('click', dismissLogin);
+    }
+  }
+
+  // Kick off auth
+  initClerkAuth();
 
   // Smooth scroll for nav links
   document.getElementById('navFeatures')?.addEventListener('click', e => { e.preventDefault(); document.getElementById('featuresSection')?.scrollIntoView({ behavior: 'smooth' }); });
@@ -129,12 +154,7 @@ function initialize() {
     });
   });
 
-  // ── Screen Management ──
-  function showScreen(name) {
-    Object.values(screens).forEach(s => s.classList.remove('active'));
-    screens[name].classList.add('active');
-    document.getElementById('topNav').style.display = name === 'dashboard' ? 'none' : '';
-  }
+
 
   // ── Real SSE-Driven Processing ──────────────────────────────────────────
   async function processWithRealAI(query) {
@@ -941,11 +961,7 @@ function initialize() {
   const refineInput = document.getElementById('refineInput');
   const refineBtn = document.getElementById('refineBtn');
 
-  function showScreen(name) {
-    Object.values(screens).forEach(s => s.classList.remove('active'));
-    screens[name].classList.add('active');
-    document.getElementById('topNav').style.display = name === 'dashboard' ? 'none' : '';
-  }
+
 
   // ── Events ───────────────────────────────────────────────────────────────
   generateBtn.addEventListener('click', () => {
