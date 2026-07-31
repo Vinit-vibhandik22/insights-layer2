@@ -26,12 +26,12 @@ async function generateBlueprint(query, ragContext) {
 
   const { systemPrompt, userPrompt } = buildBlueprintPrompt(query, ragContext);
 
-  console.log('[Groq] Calling Llama 3.3 70B for blueprint generation...');
+  console.log('[Groq] Calling Llama 3.1 8B for blueprint generation...');
   const startTime = Date.now();
 
   try {
     const completion = await groq.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
+      model: 'llama-3.1-8b-instant',
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
