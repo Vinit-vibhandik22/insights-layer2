@@ -10,16 +10,7 @@ const app = express();
 
 // ── Security Middleware ──────────────────────────────────────────────────
 app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'", "https://*.clerk.accounts.dev", "https://*.clerk.com"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdn.jsdelivr.net", "https://*.clerk.accounts.dev"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
-      fontSrc: ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "https://*.clerk.accounts.dev", "https://api.tavily.com", "https://api.github.com", "https://yjzrwixvwynknwjyhghu.supabase.co"],
-    }
-  }
+  contentSecurityPolicy: false // Disabled for hackathon to prevent Clerk/Mermaid script blocks
 }));
 
 app.use(cors({
