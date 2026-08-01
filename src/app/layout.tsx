@@ -10,7 +10,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
-  const content = (
+  const bodyContent = clerkKey ? (
+    <ClerkProvider>{children}</ClerkProvider>
+  ) : (
+    children
+  );
+
+  return (
     <html lang="en">
       <head>
         <link
@@ -18,14 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body>{bodyContent}</body>
     </html>
   );
-
-  // Wrap in ClerkProvider only when a publishable key is available
-  if (clerkKey) {
-    return <ClerkProvider publishableKey={clerkKey}>{content}</ClerkProvider>;
-  }
-
-  return content;
 }
