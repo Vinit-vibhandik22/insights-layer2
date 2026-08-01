@@ -21,7 +21,7 @@ REQUIRED JSON SCHEMA:
     "database": ["DB"], "aiMl": ["Model"],
     "devops": ["Docker", "CI/CD"], "external_apis": ["API"]
   },
-  "architectureMermaid": "VALID Mermaid.js graph TD string ONLY. NO markdown backticks. NO code blocks. NO unquoted special characters in node labels. Use \\n for line breaks.",
+  "architectureMermaid": "VALID Mermaid.js graph TD string ONLY. NO markdown. Use simple format: A[Node1] --> B[Node2]. DO NOT USE SPACES IN NODE IDS. NO special characters.",
   "systemDesignDetails": {
     "scalability": "Scaling strategy.", "dataFlow": "Step-by-step flow.",
     "apiDesign": "Key endpoints.", "security": "Auth and encryption.", "mlPipeline": "ML approach."

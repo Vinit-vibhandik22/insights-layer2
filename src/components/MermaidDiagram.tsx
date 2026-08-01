@@ -48,6 +48,11 @@ export default function MermaidDiagram({ code }: Props) {
         // Remove numbered lists that LLMs sometimes hallucinate
         cleanCode = cleanCode.replace(/^\d+\.\s*/gm, '');
 
+        // 1. First parse the code to validate it. If this fails, it throws an error 
+        // and we never call render(), completely preventing the bomb SVG injection!
+        await mermaid.parse(cleanCode);
+
+        // 2. If it's valid, render it
         const id = `mermaid-${Math.random().toString(36).slice(2)}`;
         const { svg: renderedSvg } = await mermaid.render(id, cleanCode);
 
