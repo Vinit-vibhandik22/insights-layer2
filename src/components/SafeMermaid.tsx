@@ -36,7 +36,9 @@ export default function SafeMermaid({ chart }: Props) {
             fontSize: '13px'
           },
           flowchart: { curve: 'basis', padding: 20 },
-          securityLevel: 'loose'
+          securityLevel: 'loose',
+          maxTextSize: 100000,
+          maxEdges: 2500
         });
 
         const cleanCode = sanitizeMermaid(chart);
@@ -51,6 +53,7 @@ export default function SafeMermaid({ chart }: Props) {
           setError(null);
         }
       } catch (err: any) {
+        console.error('[Mermaid Error]', err);
         if (!cancelled) {
           setError(`Diagram error: ${err.message || 'Invalid Mermaid syntax'}`);
         }
@@ -86,6 +89,7 @@ export default function SafeMermaid({ chart }: Props) {
   return (
     <div
       className="mermaid-container"
+      style={{ overflowX: 'auto', width: '100%' }}
       ref={containerRef}
       dangerouslySetInnerHTML={{ __html: svg }}
     />
