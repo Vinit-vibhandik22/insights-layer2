@@ -74,6 +74,13 @@ export default function MermaidDiagram({ code }: Props) {
         // Example hallucination: A -->|Label|> B
         cleanCode = cleanCode.replace(/\|>/g, '| ');
 
+        // Fix invalid flowchart arrows that LLMs hallucinate from sequence diagrams
+        cleanCode = cleanCode.replace(/->>/g, '-->');
+        cleanCode = cleanCode.replace(/=>/g, '==>');
+        cleanCode = cleanCode.replace(/([^->=])->([^->=])/g, '$1-->$2');
+
+        console.log("Sanitized Mermaid Code:", cleanCode);
+
         // 1. First parse the code to validate it. If this fails, it throws an error 
         // and we never call render(), completely preventing the bomb SVG injection!
         await mermaid.parse(cleanCode);
