@@ -106,8 +106,14 @@ export default function MermaidDiagram({ code }: Props) {
 
   if (error) {
     return (
-      <div style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, padding: 14 }}>
-        <p style={{ color: '#ef4444', fontSize: '0.82rem' }}>{error}</p>
+      <div style={{ padding: '32px 20px', textAlign: 'center', background: 'var(--bg-panel2)', border: '1px solid var(--border)', borderRadius: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+        <div style={{ fontSize: '2.5rem', opacity: 0.8 }}>🗺️</div>
+        <div>
+           <h4 style={{ color: 'var(--text)', marginBottom: 6, fontSize: '0.95rem' }}>Complex Architecture Diagram</h4>
+           <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem', maxWidth: 400, margin: '0 auto', lineHeight: 1.5 }}>
+             The AI generated a highly complex architectural blueprint that cannot be previewed in this interactive window.
+           </p>
+        </div>
       </div>
     );
   }
