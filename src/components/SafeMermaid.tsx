@@ -59,7 +59,7 @@ export default function SafeMermaid({ chart }: Props) {
 
     render();
     return () => { cancelled = true; };
-  }, [code]);
+  }, [chart]);
 
   if (error) {
     return (
