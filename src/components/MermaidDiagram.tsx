@@ -48,6 +48,28 @@ export default function MermaidDiagram({ code }: Props) {
         // Remove numbered lists that LLMs sometimes hallucinate
         cleanCode = cleanCode.replace(/^\d+\.\s*/gm, '');
 
+        // Sanitize node labels to prevent parsing errors like 'TAGEND' (e.g. A[User] -->|Login| B[Auth Service])
+        // If the LLM generates A[Auth Service] it can break if it has special chars. 
+        // More importantly, the LLM might generate A[Auth Service] instead of A["Auth Service"]
+        // This regex finds content inside brackets [ ] and wraps it in quotes if not already quoted, 
+        // while stripping out HTML-like brackets < > that break mermaid.
+        cleanCode = cleanCode.replace(/\[([^\]]+)\]/g, (match, p1) => {
+           // If it's already properly quoted like ["Something"], just return it (maybe stripping < >)
+           if (p1.startsWith('"') && p1.endsWith('"')) {
+               const inner = p1.slice(1, -1).replace(/[<>]/g, '');
+               return `["${inner}"]`;
+           }
+           // Otherwise, strip bad characters and wrap in quotes
+           const sanitized = p1.replace(/[<>"]/g, '');
+           return `["${sanitized}"]`;
+        });
+        
+        // Also sanitize arrow labels |Label| to remove < > just in case
+        cleanCode = cleanCode.replace(/\|([^\|]+)\|/g, (match, p1) => {
+             const sanitized = p1.replace(/[<>]/g, '');
+             return `|${sanitized}|`;
+        });
+
         // 1. First parse the code to validate it. If this fails, it throws an error 
         // and we never call render(), completely preventing the bomb SVG injection!
         await mermaid.parse(cleanCode);
