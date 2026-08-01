@@ -12,28 +12,94 @@ function getClient() {
   return groqClient;
 }
 
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
 export async function generateBlueprint(query, ragContext) {
   const groq = getClient();
   const { buildBlueprintPrompt } = await import('./prompt-builder.js');
   const { systemPrompt, userPrompt } = buildBlueprintPrompt(query, ragContext);
 
-  const completion = await groq.chat.completions.create({
-    model: 'llama-3.1-8b-instant',
-    messages: [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: userPrompt }
-    ],
-    temperature: 0.2,
-    max_tokens: 2048,
-    top_p: 0.95,
-    response_format: { type: 'json_object' }
-  });
+  let rawContent = null;
+  const retries = 2;
 
-  const rawContent = completion.choices[0]?.message?.content;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      console.log(`[LLM] Calling Groq llama-3.1-8b-instant (attempt ${attempt + 1}/${retries + 1})...`);
+      const completion = await groq.chat.completions.create({
+        model: 'llama-3.1-8b-instant',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        temperature: 0.2,
+        max_tokens: 3500,  // Reduced from 6000 to stay under Groq's 6000 TPM limit (Prompt + max_tokens must be < 6000)
+        top_p: 0.95
+        // NO response_format: json_object — Groq rejects it with "Request too large"
+        // when prompt tokens + response_format overhead exceeds model limits
+      });
+
+      const finishReason = completion.choices[0]?.finish_reason;
+      const content = completion.choices[0]?.message?.content;
+      console.log(`[LLM] finish_reason: ${finishReason}, length: ${content?.length}`);
+
+      if (finishReason === 'length') {
+        console.warn('[LLM] ⚠️ Response TRUNCATED — JSON will be incomplete');
+      }
+
+      rawContent = content || null;
+      break; // success
+    } catch (err) {
+      const isRateLimit = err?.status === 429 || err?.message?.includes('rate_limit');
+      console.error(`[LLM] Groq error (attempt ${attempt + 1}): ${err?.message}`);
+      if (isRateLimit && attempt < retries) {
+        const waitMs = 15000 * (attempt + 1);
+        console.warn(`[LLM] Rate limited. Waiting ${waitMs / 1000}s...`);
+        await sleep(waitMs);
+        continue;
+      }
+      throw err;
+    }
+  }
+
   if (!rawContent) throw new Error('Groq returned empty response');
 
-  const blueprint = JSON.parse(rawContent);
+  const jsonStr = extractJSON(rawContent);
+  if (!jsonStr) {
+    console.error('[LLM] No valid JSON found in response. Raw (first 500):', rawContent.substring(0, 500));
+    throw new Error('LLM response did not contain valid JSON. Please try again.');
+  }
+
+  let blueprint;
+  try {
+    blueprint = JSON.parse(jsonStr);
+  } catch (e) {
+    console.error('[LLM] JSON.parse failed:', e.message);
+    console.error('[LLM] JSON tail (last 200):', jsonStr.slice(-200));
+    throw new Error(`Malformed JSON from LLM: ${e.message}. Please try again.`);
+  }
+
+  console.log('[LLM] ✅ Blueprint parsed:', blueprint.title);
   return validateAndNormalize(blueprint, query);
+}
+
+// Balanced-brace JSON extractor — more reliable than greedy regex
+function extractJSON(raw) {
+  let s = raw.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+  s = s.replace(/```json\s*/gi, '').replace(/```\s*/gi, '').trim();
+  const start = s.indexOf('{');
+  if (start === -1) return null;
+  let depth = 0, inStr = false, esc = false;
+  for (let i = start; i < s.length; i++) {
+    const c = s[i];
+    if (esc) { esc = false; continue; }
+    if (c === '\\' && inStr) { esc = true; continue; }
+    if (c === '"') { inStr = !inStr; continue; }
+    if (inStr) continue;
+    if (c === '{') depth++;
+    else if (c === '}') { depth--; if (depth === 0) return s.slice(start, i + 1); }
+  }
+  console.error('[LLM] extractJSON: JSON truncated, depth=', depth);
+  return null;
 }
 
 export async function generateMentorResponse(userMessage, blueprintContext, chatHistory = []) {

@@ -57,23 +57,29 @@ export default function Home() {
             continue;
           }
           if (line.startsWith('data: ')) {
+            // Separate JSON parsing from event handling
+            let data: any;
             try {
-              const data = JSON.parse(line.slice(6));
-
-              if (currentEvent === 'blueprint' || (data.title !== undefined && data.sprints !== undefined)) {
-                bp = data;
-              } else if (currentEvent === 'stage' || data.stage !== undefined) {
-                setLoader({ text: data.label || '', sub: data.sub || '', progress: data.progress || 0, stage: data.stage || 0 });
-              } else if (currentEvent === 'done' || data.success === true) {
-                setLoader(prev => ({ ...prev, progress: 100 }));
-              } else if (currentEvent === 'error' || (data.message && !data.title)) {
-                throw new Error(data.message);
-              }
-            } catch (parseErr: any) {
-              if (parseErr.message && !parseErr.message.includes('JSON')) {
-                throw parseErr;
-              }
+              data = JSON.parse(line.slice(6));
+            } catch {
+              currentEvent = '';
+              continue; // Skip unparseable lines silently
             }
+
+            // Event-name dispatch — reliable across all LLMs
+            if (currentEvent === 'blueprint' || (data.title !== undefined)) {
+              bp = data;
+            } else if (currentEvent === 'stage' || data.stage !== undefined) {
+              setLoader({ text: data.label || '', sub: data.sub || '', progress: data.progress || 0, stage: data.stage || 0 });
+            } else if (currentEvent === 'done' || data.success === true) {
+              setLoader(prev => ({ ...prev, progress: 100 }));
+            } else if (currentEvent === 'error' || (data.message && !data.title)) {
+              // Throw OUTSIDE try/catch — must propagate to outer catch
+              const errorMsg = data.message || 'Unknown server error';
+              console.error('[SSE] Server error event:', errorMsg);
+              throw new Error(errorMsg);
+            }
+
             currentEvent = '';
           }
         }
