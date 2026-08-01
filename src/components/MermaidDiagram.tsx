@@ -69,6 +69,10 @@ export default function MermaidDiagram({ code }: Props) {
              const sanitized = p1.replace(/[<>]/g, '');
              return `|${sanitized}|`;
         });
+        
+        // Remove stray > characters that LLMs sometimes hallucinate right after a label pipe 
+        // Example hallucination: A -->|Label|> B
+        cleanCode = cleanCode.replace(/\|>/g, '| ');
 
         // 1. First parse the code to validate it. If this fails, it throws an error 
         // and we never call render(), completely preventing the bomb SVG injection!
