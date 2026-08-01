@@ -26,7 +26,7 @@ REQUIRED JSON SCHEMA (ALL fields mandatory):
     "devops": ["Container", "CI/CD tool", "Monitoring"],
     "external_apis": ["API name (purpose)", "Dataset name (source)"]
   },
-  "architectureMermaid": "VALID Mermaid.js graph TD string ONLY. NO markdown. ONLY use `-->` for arrows (NEVER use `->`, `->>`, or `=>`). Use simple format: A[\"Node1\"] -->|\"Label\"| B[\"Node2\"]. Use double-quoted labels for node names with spaces. DO NOT USE SPACES OR SPECIAL CHARACTERS IN NODE IDS.",
+  "architectureMermaid": "VALID Mermaid.js graph TD string ONLY. NO markdown. ONLY use '-->' for arrows (NEVER use '->', '->>', or '=>'). Use simple format: A[\"Node1\"] -->|\"Label\"| B[\"Node2\"]. Use double-quoted labels for node names with spaces. DO NOT USE SPACES OR SPECIAL CHARACTERS IN NODE IDS.",
   "systemDesignDetails": {
     "scalability": "Specific scaling strategy for 100k+ users.",
     "dataFlow": "Step-by-step data flow from user to response.",
