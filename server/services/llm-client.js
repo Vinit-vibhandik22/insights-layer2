@@ -215,6 +215,12 @@ function validateAndNormalizeBlueprint(bp, query) {
       { from: 'bot', text: `🚀 Project "${bp.title || query}" initialized! Ready to start building?` }
     ],
     webIntel: bp.webIntel || [],
+    literatureReview: bp.literatureReview || [],
+    innovationOpportunities: bp.innovationOpportunities || [],
+    githubRepos: bp.githubRepos || [],
+    apisAndDatasets: bp.apisAndDatasets || [],
+    roadmap: bp.roadmap || [],
+    presentationDoc: bp.presentationDoc || {},
     sprints: bp.sprints || [
       { week: 'W1', title: 'Foundation', desc: 'Project setup & core architecture', done: false, milestones: [] },
       { week: 'W2', title: 'Core Features', desc: 'Primary functionality development', done: false, milestones: [] },

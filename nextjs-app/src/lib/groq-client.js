@@ -96,6 +96,12 @@ function validateAndNormalize(bp, query) {
     competitiveAnalysis: bp.competitiveAnalysis || [],
     mentorChat: bp.mentorChat || [{ from: 'bot', text: `🚀 Project "${bp.title || query}" initialized!` }],
     webIntel: bp.webIntel || [],
+    literatureReview: bp.literatureReview || [],
+    innovationOpportunities: bp.innovationOpportunities || [],
+    githubRepos: bp.githubRepos || [],
+    apisAndDatasets: bp.apisAndDatasets || [],
+    roadmap: bp.roadmap || [],
+    presentationDoc: bp.presentationDoc || {},
     sprints: bp.sprints || [
       { week: 'W1', title: 'Foundation', desc: 'Project setup & core architecture', done: false, milestones: [] },
       { week: 'W2', title: 'Core Features', desc: 'Primary functionality', done: false, milestones: [] },
@@ -107,3 +113,4 @@ function validateAndNormalize(bp, query) {
     deploymentPlan: bp.deploymentPlan || {}
   };
 }
+
