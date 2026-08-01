@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import MermaidDiagram from './MermaidDiagram';
+import SafeMermaid from './SafeMermaid';
 
 interface Props {
   blueprint: any;
@@ -207,7 +207,7 @@ export default function DashboardScreen({ blueprint: bp, query, onNewQuery, onRe
               {bp.architectureMermaid && (
                 <div style={{ marginTop: 20 }}>
                   <div className="tech-section-label" style={{ marginBottom: 12 }}>MERMAID DIAGRAM</div>
-                  <MermaidDiagram code={bp.architectureMermaid} />
+                  <SafeMermaid chart={bp.architectureMermaid} />
                 </div>
               )}
             </div>
