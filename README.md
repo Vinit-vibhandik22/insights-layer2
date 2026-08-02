@@ -79,7 +79,7 @@ npm install
 npm run dev
 ```
 
-Visit [http://localhost:3000](http://localhost:3000) to view the application!
+Visit https://insights-layer2.onrender.com/ to view the application!
 
 ## 📄 License
 MIT License
