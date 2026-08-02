@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import MermaidDiagram from './MermaidDiagram';
+import SafeMermaid from './SafeMermaid';
 
 interface Props {
   blueprint: any;
@@ -267,7 +267,7 @@ export default function DashboardScreen({ blueprint: bp, query, onNewQuery, onRe
           <div className={`tab-panel${activeTab === 'architecture' ? ' active' : ''}`}>
             <Block label="SYSTEM ARCHITECTURE DIAGRAM">
               {bp.architectureMermaid
-                ? <MermaidDiagram code={bp.architectureMermaid} />
+                ? <SafeMermaid chart={bp.architectureMermaid} />
                 : <p style={{color:'var(--text-muted)',fontSize:'0.85rem'}}>No diagram generated.</p>}
             </Block>
 
