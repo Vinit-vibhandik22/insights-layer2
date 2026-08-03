@@ -320,8 +320,8 @@ This project is licensed under the **MIT License**.
 
 **Akshit Agarwal**
 **Divya Wankhade**
-**Harshal Gawadhe**
-**Vinit Shah**
+**Harshal Gawande**
+**Vinit vibhandik**
 
 GitHub:
 https://github.com/captain17codes
